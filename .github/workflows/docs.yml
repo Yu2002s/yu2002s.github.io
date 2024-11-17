@@ -1,5 +1,9 @@
 name: docs
 
+# 解决权限 403 问题
+permissions:
+  contents: write
+
 on:
   # 每当 push 到 main 分支时触发部署
   push:
