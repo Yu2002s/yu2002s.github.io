@@ -46,6 +46,9 @@ export default defineUserConfig({
           "vue-html",
           "tsx",
           "sql",
+          "scss",
+          "less",
+          "markdown",
         ],
       },
 
