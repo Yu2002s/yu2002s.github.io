@@ -6,7 +6,7 @@ import { notes } from "./notes"
  * @see https://theme-plume.vuejs.press/config/basic/
  */
 export default defineThemeConfig({
-  logo: "/avatar.jpg",
+  logo: "/avatar.png",
   // your git repo url
   // docsRepo: "",
   // docsDir: "docs",
@@ -14,7 +14,7 @@ export default defineThemeConfig({
   appearance: true,
 
   profile: {
-    avatar: "/avatar.jpg",
+    avatar: "/avatar.png",
     name: "冬日暖雨",
     description: "永远相信美好的事情即将发生",
     circle: true,

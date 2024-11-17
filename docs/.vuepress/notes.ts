@@ -1,7 +1,8 @@
 import { defineNotesConfig } from "vuepress-theme-plume"
 import interview from "./notes/interview"
-import uniapp from "./notes/uniapp"
 import question from "./notes/question";
+import frontend from "./notes/frontend";
+import backend from "./notes/backend";
 
 /* const demoNote = defineNoteConfig({
   dir: "demo",
@@ -16,5 +17,5 @@ import question from "./notes/question";
 export const notes = defineNotesConfig({
   dir: "notes",
   link: "/",
-  notes: [interview, uniapp, question],
+  notes: [interview, question, frontend, backend],
 })

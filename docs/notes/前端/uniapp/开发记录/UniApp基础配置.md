@@ -1,7 +1,7 @@
 ---
 title: UniApp基础配置
 createTime: 2024/11/16 22:17:43
-permalink: /uniapp/u19w3e17/
+permalink: /frontend/uniapp/u19w3e17/
 ---
 
 ### 创建项目

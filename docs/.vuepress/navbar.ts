@@ -15,8 +15,9 @@ export const navbar = defineNavbarConfig([
         items: [
             // { text: "示例", link: "/notes/demo/README.md" },
             {text: "面试", link: "/notes/interview/README.md"},
-            {text: "Uni-App", link: "/uniapp/README.md"},
             {text: "问题记录", link: "/question/README.md"},
+            {text: '前端笔记', link: "/frontend/README.md"},
+            {text: '后端笔记', link: "/backend/README.md"},
         ],
     },
     {

@@ -1,7 +1,7 @@
 ---
 title: Uni-App一些项目基础样式
 createTime: 2024/11/16 22:32:35
-permalink: /uniapp/urqxmzhm/
+permalink: /frontend/uniapp/urqxmzhm/
 ---
 
 App.vue 中配置一些项目的基础样式

@@ -6,7 +6,7 @@ createTime: 2024/11/16 15:05:38
 permalink: /article/l0fzdyx2/
 draft: true
 # cover:
-#   url: /avatar.jpg
+#   url: /avatar.png
 #   #  layout: left
 #   layout: top
 #   width: 100
