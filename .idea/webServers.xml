@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bdf2faab-c188-4d91-ba82-32d9ab28d6a3" name="jdynb.xyz" url="http://jdynb.xyz">
+        <fileTransfer accessType="SFTP" host="jdynb.xyz" port="22" sshConfigId="32838305-3601-4780-91c0-dd8d7a5865e9" sshConfig="root@jdynb.xyz:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" isUseSudo="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

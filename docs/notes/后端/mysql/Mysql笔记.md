@@ -6,7 +6,7 @@ permalink: /backend/wm7a2qo0/
 
 ### MySql数据库管理系统
 
-```mysql
+```sql
 show databases; #查询所有数据库
 create database db1; #创建数据库
 create database if not exists db1; #创建数控并进行判断是否存在
@@ -142,14 +142,11 @@ varchar为字符串，每个字段长度不固定
 
 #### 语法
 
+```sql
 create table 表名 (
-
-```
 字段1 字段类型 [约束] [commit 字段1注释]
-```
-
-
 )
+```
 
 #### 约束
 
