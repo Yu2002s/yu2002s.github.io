@@ -16,7 +16,7 @@ export default defineUserConfig({
 
   theme: plumeTheme({
     // 添加您的部署域名
-    hostname: 'http://jdynb.xyz',
+    hostname: 'https://www.jdynb.xyz',
 
     plugins: {
       /**

@@ -2,6 +2,7 @@
 title: Mysql笔记
 createTime: 2024/11/02 12:05:23
 permalink: /backend/wm7a2qo0/
+tags: [Mysql, sql]
 ---
 
 ### MySql数据库管理系统

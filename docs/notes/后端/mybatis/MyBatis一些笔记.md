@@ -2,6 +2,7 @@
 title: MyBatis一些笔记
 createTime: 2024/11/02 11:39:51
 permalink: /backend/cyw3tcxo/
+tags: [Mybatis]
 ---
 
 ## MyBatis

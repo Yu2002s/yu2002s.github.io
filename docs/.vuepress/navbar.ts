@@ -13,11 +13,11 @@ export const navbar = defineNavbarConfig([
     text: "笔记",
     items: [
       // { text: "示例", link: "/notes/demo/README.md" },
-      { text: "面试", link: "/notes/interview/README.md" },
+      { text: "面试", link: "/interview/README.md" },
       { text: "问题记录", link: "/question/README.md" },
       { text: "备忘录", link: "/memo/README.md" },
       { text: "前端笔记", link: "/frontend/README.md" },
-      { text: "后端笔记", link: "/backend/README.md" },
+      { text: "后端笔记", link: "/backend/README.md" }
     ],
   },
   {

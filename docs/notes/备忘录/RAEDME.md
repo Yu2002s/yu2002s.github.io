@@ -1,5 +1,5 @@
 ---
-title: RAEDME
+title: 备忘录
 createTime: 2024/11/18 19:11:28
 permalink: /memo/
 pageLayout: home
@@ -10,13 +10,13 @@ config:
       - title: Git指令
         icon: devicon:git
         details: Git使用帮助、Git常用指令
-        link: /interview/tbnof701/
-      - title: CSS基础面试题
-        icon: skill-icons:css
-        details: CSS相关的基础面试题
-        link: /interview/94vcmy6t/
-      - title: JS基础面试题
-        icon: skill-icons:javascript
-        details: JS经常问到的面试题
-        link: /interview/qui3z9y0/
+        link: /memo/git/
+      - title: Nginx配置
+        icon: logos:nginx
+        details: Nginx常用的配置
+        link: /memo/nginx/
+      - title: 快捷键
+        icon: material-symbols:keyboard
+        details: 开发工具常用快捷键
+        link: /memo/keyboard/
 ---

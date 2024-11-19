@@ -1,7 +1,8 @@
 ---
 title: 一些Git指令
 createTime: 2024/11/17 18:39:00
-permalink: /frontend/wa47kuf3/
+permalink: /memo/git/
+tags: [Git]
 ---
 
 ## 一些常用的指令
