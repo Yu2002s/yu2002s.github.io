@@ -1,5 +1,5 @@
 ---
-title: 解决使用pnpm全局安装报错的问题
+title: 使用pnpm全局安装报错
 createTime: 2024/08/08 20:47:43
 permalink: /question/osu8nxpl/
 ---

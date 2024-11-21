@@ -10,6 +10,7 @@ export default defineThemeConfig({
   // your git repo url
   docsRepo: "https://github.com/Yu2002s/drny-index",
   docsDir: "docs",
+  docsBranch: "master",
 
   appearance: true,
 
@@ -25,6 +26,11 @@ export default defineThemeConfig({
 
   navbar,
   notes,
-  social: [{ icon: "github", link: "https://github.com/yu2002s" },
-    {icon: 'qq', link: 'http://wpa.qq.com/msgrd?v=3&uin=2475058223&site=qq&menu=yes'}],
+  social: [
+    { icon: "github", link: "https://github.com/yu2002s" },
+    {
+      icon: "qq",
+      link: "http://wpa.qq.com/msgrd?v=3&uin=2475058223&site=qq&menu=yes",
+    },
+  ],
 })

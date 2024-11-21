@@ -17,8 +17,8 @@ config:
           text: 博客
           link: /blog/
         - theme: alt
-          text: 冬雨影视
-          link: http://movies.jdynb.xyz
+          text: 我的App
+          link: /app/
         - theme: alt
           text: Github →
           link: https://github.com/yu2002s
