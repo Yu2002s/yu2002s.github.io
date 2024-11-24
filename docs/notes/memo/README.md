@@ -11,6 +11,10 @@ config:
         icon: devicon:git
         details: Git使用帮助、Git常用指令
         link: /memo/git/
+      - title: Linux
+        icon: logos:linux-tux
+        details: Linux常用指令
+        link: /memo/linux/
       - title: Nginx配置
         icon: logos:nginx
         details: Nginx常用的配置
