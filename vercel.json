@@ -4,6 +4,7 @@
   "outputDirectory": "docs/.vuepress/dist",
   "git": {
     "deploymentEnabled": {
+      "master": true,
       "gh-pages": false
     }
   }
