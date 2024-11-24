@@ -1,6 +1,6 @@
-import {viteBundler} from "@vuepress/bundler-vite"
-import {defineUserConfig} from "vuepress"
-import {plumeTheme} from "vuepress-theme-plume"
+import { viteBundler } from "@vuepress/bundler-vite"
+import { defineUserConfig } from "vuepress"
+import { plumeTheme } from "vuepress-theme-plume"
 
 export default defineUserConfig({
   base: "/",
@@ -8,15 +8,23 @@ export default defineUserConfig({
   title: "冬日暖雨",
   description: "冬日暖雨的个人主页,记录学习到的技术。包含博客、笔记、App",
 
-  head: [['link', {rel: 'icon', href: '/avatar.png'}], [
-    'meta', {name: 'keywords', content: '冬日暖雨,冬雨,冬雨影视,个人主页,个人博客,IT技术分享,学习,笔记'}
-  ]],
+  head: [
+    ["link", { rel: "icon", href: "/avatar.png" }],
+    [
+      "meta",
+      {
+        name: "keywords",
+        content:
+          "冬日暖雨,冬雨,冬雨影视,个人主页,个人博客,IT技术分享,学习,笔记",
+      },
+    ],
+  ],
 
   bundler: viteBundler(),
 
   theme: plumeTheme({
     // 添加您的部署域名
-    hostname: 'https://www.jdynb.xyz',
+    hostname: "https://www.jdynb.xyz",
 
     plugins: {
       /**
@@ -94,16 +102,16 @@ export default defineUserConfig({
       comment: {
         provider: "Giscus",
         comment: true,
-        repo: 'Yu2002s/drny-index',
-        repoId: 'R_kgDONQgLKA',
-        category: 'General',
-        categoryId: 'DIC_kwDONQgLKM4CkVkI',
-        mapping: 'pathname',
+        repo: "Yu2002s/drny-index",
+        repoId: "R_kgDONQgLKA",
+        category: "General",
+        categoryId: "DIC_kwDONQgLKM4CkVkI",
+        mapping: "pathname",
         reactionsEnabled: true,
-        inputPosition: 'top',
+        inputPosition: "top",
       },
 
-      watermark: false
+      watermark: false,
     },
 
     // 禁用博客功能

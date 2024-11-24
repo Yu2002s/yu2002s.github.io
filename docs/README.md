@@ -1,6 +1,7 @@
 ---
 # 设置为主页
 pageLayout: home
+description: 冬日暖雨的个人主页,记录学习到的技术。包含博客、笔记、App
 # 设置为博客
 #pageLayout: blog
 externalLinkIcon: true
