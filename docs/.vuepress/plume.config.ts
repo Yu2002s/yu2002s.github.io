@@ -8,7 +8,7 @@ import { notes } from "./notes"
 export default defineThemeConfig({
   logo: "/avatar.png",
   // your git repo url
-  docsRepo: "https://github.com/Yu2002s/drny-index",
+  docsRepo: "https://github.com/Yu2002s/yu2002s.github.io",
   docsDir: "docs",
   docsBranch: "master",
 
