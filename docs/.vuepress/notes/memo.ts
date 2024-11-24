@@ -1,4 +1,4 @@
-import {defineNoteConfig} from "vuepress-theme-plume"
+import { defineNoteConfig } from "vuepress-theme-plume"
 
 export default defineNoteConfig({
   dir: "memo",
@@ -6,14 +6,20 @@ export default defineNoteConfig({
   text: "备忘录",
   sidebar: [
     {
-      text: "Git", link: "/memo/git/"
+      text: "Git",
+      link: "/memo/git/",
     },
     {
-      text: "Nginx", link: "/memo/nginx/",
+      text: "Linux",
+      link: "/memo/linux/",
+    },
+    {
+      text: "Nginx",
+      link: "/memo/nginx/",
     },
     {
       text: "快捷键",
-      link: "/memo/keyboard/"
-    }
+      link: "/memo/keyboard/",
+    },
   ],
 })
