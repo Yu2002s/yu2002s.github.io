@@ -172,3 +172,1742 @@ class ClassComponent extends React.Component {
 目前官方更推荐使用函数的形式创建组件
 
 :::
+
+## 5. 条件渲染
+
+<Card title="条件渲染">
+
+在 `React` 中，可以使用条件渲染来根据不同的条件渲染不同的组件或元素。
+
+- 在 `React`，你可以使用 `JavaScript` 来控制分支逻辑。
+- 你可以使用 `if` 语句来选择性地返回 `JSX` 表达式。
+- 你可以选择性地将一些 `JSX` 赋值给变量，然后用大括号将其嵌入到其他 `JSX` 中。
+- 在 `JSX` 中，`{cond ? <A /> : <B />}` 表示 “当 `cond` 为真值时, 渲染 `<A />`，否则 `<B />`”。
+- 在 `JSX` 中，`{cond && <A />}` 表示 “当 `cond` 为真值时, 渲染 `<A />`，否则不进行渲染”。
+- 快捷的表达式很常见，但如果你更倾向于使用 `if`，你也可以不使用它们。
+
+</Card>
+
+### 5.1 三目运算符
+
+对于一些简单的条件判断，可以直接在 JSX 中使用三目运算符。
+
+```jsx
+import { useState } from "react"
+
+function App() {
+  const [count, setCount] = useState(1)
+
+  function increment() {
+    setCount((prev) => {
+      return prev + 1
+    })
+  }
+
+  return (
+    <div>
+      <p>count: {count}</p>
+      <button onClick={increment}>+1</button>
+
+      {/* 条件渲染，可以使用三目运算符直接写一行即可 */}
+      {count > 10 ? <div>count 大于 10</div> : <div>count 小于等于 10</div>}
+    </div>
+  )
+}
+
+export default App
+```
+
+如果结构复杂的，可以使用()进行包裹
+
+```
+{
+  isPacked ? (<del>{name + " ✅"}</del>) : (name)
+}
+```
+
+### 5.2 `if` 语句
+
+对于一些复杂的条件判断，可以使用 `if` 语句。
+
+```jsx
+// ... 省略一些代码
+let content = ""
+
+if (count > 10) {
+  content = <div>count 大于 10</div>
+} else {
+  content = <div>count 小于 10</div>
+}
+
+return (
+  <div>
+    <p>count: {count}</p>
+    <button onClick={increment}>+1</button>
+
+    {content}
+  </div>
+)
+```
+
+如果你不想返回任何内容，你可以直接返回 `null`
+
+```jsx
+function Item({ name, isPacked }) {
+  if (isPacked) {
+    return null
+  }
+
+  return <li className="item">{name}</li>
+}
+```
+
+### 5.3 `&&` 运算符
+
+对于一些简单的条件判断，可以使用 `&&` 运算符。
+
+```jsx
+// ... 省略一些代码
+
+return (
+  <div>
+    <p>count: {count}</p>
+    <button onClick={increment}>+1</button>
+
+    {count > 10 && <div>count 大于 10</div>}
+  </div>
+)
+```
+
+当 `JavaScript` `&&` 表达式 的左侧（我们的条件）为 `true` 时，它则返回其右侧的值（在我们的例子里是勾选符号）。但条件的结果是 `false`，则整个表达式会变成 false。在 `JSX` 里，`React` 会将 `false` 视为一个“空值”，就像 `null` 或者 `undefined`，这样 `React` 就不会在这里进行任何渲染。
+
+::: tip
+**切勿将数字放在 `&&` 左侧**.
+
+`JavaScript` 会自动将左侧的值转换成布尔类型以判断条件成立与否。然而，如果左侧是 0，整个表达式将变成左侧的值（0），React 此时则会渲染 0 而不是不进行渲染。
+
+例如，一个常见的错误是 `messageCount` && `<p>New messages</p>`。其原本是想当 `messageCount` 为 0 的时候不进行渲染，但实际上却渲染了 0。
+
+为了更正，可以将左侧的值改成布尔类型：`messageCount > 0 && <p>New messages</p>`。
+:::
+
+## 6. 循环遍历
+
+你可以借助原生 js 的方式，在 jsx 中循环遍历标签
+
+- 如何从组件中抽离出数据，并把它们放入像数组、对象这样的数据结构中。
+- 如何使用 `JavaScript` 的 `map()` 方法来生成一组相似的组件。
+- 如何使用 `JavaScript` 的 `filter()` 方法来筛选数组。
+- 为何以及如何给集合中的每个组件设置一个 `key` 值：它使 React 能追踪这些组件，即便后者的位置或- 数据发生了变化。
+
+```jsx
+const arr = Array.from({ length: count }, (_, index) => index + 1)
+
+return (
+  <>
+    {arr.map((item) => {
+      return <div key={item}>{item}</div>
+    })}
+  </>
+)
+```
+
+当然你可以用另一种写法，把 `map` 放到结构外面遍历
+
+```jsx
+const arr = Array.from({ length: count }, (_, index) => index + 1)
+
+const items = arr.map((item) => <div key={item}>{item}</div>)
+
+return <div>{items}</div>
+```
+
+::: warning
+
+注意：遍历出来的每个节点都必须有 `key` 属性，并且 `key` 的值必须是唯一的。
+
+:::
+
+上面循环的 jsx 语法中，都有 `key` 属性，这个属性是 react 提供的，用来标识每个节点的唯一性，react 会根据这个 `key` 来判断节点是否需要更新。
+
+<Card title="Fragment节点">
+
+::: tip
+
+如果你想循环每个节点而不需要外部的包裹的 `div` 节点
+
+`Fragment` 语法的简写形式 `<> </>` 无法接受 `key` 值，所以你只能要么把生成的节点用一个 `<div>` 标签包裹起来，要么使用长一点但更明确的 `<Fragment>` 写法：
+
+```jsx
+import { Fragment } from "react" // [!code highlight]
+
+// ...
+
+const listItems = people.map((person) => (
+  <Fragment key={person.id}>
+    <h1>{person.name}</h1>
+    <p>{person.bio}</p>
+  </Fragment>
+))
+```
+
+这里的 `Fragment` 标签本身并不会出现在 `DOM` 上，这串代码最终会转换成 `<h1>、<p>、<h1>、<p>`…… 的列表。
+
+:::
+
+</Card>
+
+::: warning
+
+你可能会想直接把数组项的索引当作 `key` 值来用，实际上，如果你没有显式地指定 key 值，React 确实默认会这么做。但是数组项的顺序在插入、删除或者重新排序等操作中会发生改变，此时把索引顺序用作 key 值会产生一些微妙且令人困惑的 bug。
+
+与之类似，请不要在运行过程中动态地产生 key，像是 `key={Math.random()}` 这种方式。这会导致每次重新渲染后的 key 值都不一样，从而使得所有的组件和 DOM 元素每次都要重新创建。这不仅会造成运行变慢的问题，更有可能导致用户输入的丢失。所以，使用能从给定数据中稳定取得的值才是明智的选择。
+
+有一点需要注意，组件不会把 key 当作 `props` 的一部分。Key 的存在只对 React 本身起到提示作用。如果你的组件需要一个 ID，那么请把它作为一个单独的 prop 传给组件： `<Profile key={id} userId={id} />`。
+
+:::
+
+## 7. 状态 `state`
+
+通常你会希望你的组件 “记住” 一些信息并展示出来，比如一个按钮被点击的次数。要做到这一点，你需要在你的组件中添加 `state`。
+
+首先，从 `React` 引入 `useState`：
+
+```jsx
+import { useState } from "react"
+```
+
+现在你可以在你的组件中声明一个 state 变量：
+
+```jsx
+function MyButton() {
+  const [count, setCount] = useState(0)
+  // ...
+}
+```
+
+你将从 `useState` 中获得两样东西：当前的 `state（count）`，以及用于更新它的函数（`setCount`）。你可以给它们起任何名字，但按照惯例会像 `[something, setSomething]` 这样为它们命名。
+
+第一次显示按钮时，count 的值为 0，因为你把 0 传给了 `useState()`。当你想改变 state 时，调用 `setCount()` 并将新的值传递给它。点击该按钮计数器将递增：
+
+```jsx
+function MyButton() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return <button onClick={handleClick}>Clicked {count} times</button>
+}
+```
+
+`React` 将再次调用你的组件函数。第一次 `count` 变成 1。接着点击会变成 2。继续点击会逐步递增。
+
+如果你多次渲染同一个组件，每个组件都会拥有自己的 state。你可以尝试点击不同的按钮：
+
+```jsx
+import { useState } from "react"
+
+export default function MyApp() {
+  return (
+    <div>
+      <h1>Counters that update separately</h1>
+      <MyButton />
+      <MyButton />
+    </div>
+  )
+}
+
+function MyButton() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return <button onClick={handleClick}>Clicked {count} times</button>
+}
+```
+
+::: note
+注意，每个按钮会 “记住” 自己的 count，而不影响其他按钮。
+:::
+
+### 7.1 组件共享数据
+
+为了使得 `MyButton` 组件显示相同的 count 并一起更新，你需要将各个按钮的 `state` “向上” 移动到最接近包含所有按钮的组件之中。
+
+在这个示例中，它是 MyApp：
+
+此刻，当你点击任何一个按钮时，MyApp 中的 count 都将改变，同时会改变 MyButton 中的两个 count。具体代码如下：
+
+::: steps
+
+1. 首先，将 MyButton 的 state 上移到 MyApp 中：
+
+```jsx
+export default function MyApp() {
+  const [count, setCount] = useState(0) // [!code ++]
+
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return (
+    <div>
+      <h1>Counters that update separately</h1>
+      <MyButton />
+      <MyButton />
+    </div>
+  )
+}
+
+function MyButton() {
+  // ... // [!code --]
+}
+```
+
+2. 接着，将 MyApp 中的点击事件处理函数以及 state 一同向下传递到 每个 MyButton 中。你可以使用 JSX 的大括号向 MyButton 传递信息。就像之前向 `<img>` 等内置标签所做的那样:
+
+```jsx
+export default function MyApp() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return (
+    <div>
+      <h1>Counters that update together</h1>
+      <MyButton count={count} onClick={handleClick} /> // [!code highlight]
+      <MyButton count={count} onClick={handleClick} /> // [!code highlight]
+    </div>
+  )
+}
+```
+
+使用这种方式传递的信息被称作 prop。此时 MyApp 组件包含了 count state 以及 handleClick 事件处理函数，并将它们作为 prop 传递给 了每个按钮。
+
+3. 最后，改变 MyButton 以 读取 从父组件传递来的 prop：
+
+```jsx
+function MyButton({ count, onClick }) {
+  return <button onClick={onClick}>Clicked {count} times</button> // [!code highlight]
+}
+```
+
+当你点击按钮时，`onClick` 处理程序会启动。每个按钮的 `onClick prop` 会被设置为 MyApp 内的 `handleClick` 函数，所以函数内的代码会被执行。该代码会调用 `setCount(count + 1)`，使得 `state` 变量 count 递增。新的 `count` 值会被作为 `prop` 传递给每个按钮，因此它们每次展示的都是最新的值。这被称为“状态提升”。通过向上移动 state，我们实现了在组件间共享它。
+
+```jsx
+import { useState } from "react"
+
+export default function MyApp() {
+  const [count, setCount] = useState(0)
+
+  function handleClick() {
+    setCount(count + 1)
+  }
+
+  return (
+    <div>
+      <h1>Counters that update together</h1>
+      <MyButton count={count} onClick={handleClick} /> // [!code highlight]
+      <MyButton count={count} onClick={handleClick} /> // [!code highlight]
+    </div>
+  )
+}
+
+function MyButton({ count, onClick }) {
+  return <button onClick={onClick}>Clicked {count} times</button> // [!code highlight]
+}
+```
+
+:::
+
+### 7.2 state 快照
+
+与普通 `JavaScript` 变量不同，`React` 状态的行为更像一个**快照**。**设置它并不改变你已有的状态变量，而是触发一次重新渲染**。这在一开始可能会让人感到惊讶！
+
+```jsx
+console.log(count) // 0
+setCount(count + 1) // 请求用 1 重新渲染
+// 仍然是 0！
+console.log(count) // [!code highlight]
+```
+
+这里有一个小的聊天应用程序。试着猜一猜，如果先按下“发送”，然后再把收件人改为 Bob，会发生什么？五秒钟后，谁的名字会出现在 alert 中？
+
+::: card title="聊天应用程序"
+
+```jsx :collapsed-lines
+import { useState } from "react"
+
+export default function Form() {
+  const [to, setTo] = useState("Alice")
+  const [message, setMessage] = useState("Hello")
+
+  function handleSubmit(e) {
+    // [!code word:5000]
+    e.preventDefault()
+    setTimeout(() => {
+      alert(`You said ${message} to ${to}`) // [!code highlight]
+    }, 5000) // [!code highlight]
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        To:{" "}
+        <select value={to} onChange={(e) => setTo(e.target.value)}>
+          <option value="Alice">Alice</option>
+          <option value="Bob">Bob</option>
+        </select>
+      </label>
+      <textarea
+        placeholder="Message"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+      <button type="submit">Send</button>
+    </form>
+  )
+}
+```
+
+5 秒之后收件人并没有发送变化
+
+:::
+
+如果一次性多次调用更新状态方法，状态会多次更新嘛？
+
+```jsx
+export default function App() {
+  const [count, setCount] = useState(0)
+
+  function increment() {
+    setCount(count + 1) // [!code highlight]
+
+    console.log(count) // [!code highlight]
+  }
+
+  return (
+    <div>
+      <p>{count}</p>
+      <button
+        onClick={() => {
+          increment() // [!code highlight]
+          increment() // [!code highlight]
+        }}
+      >
+        增加
+      </button>
+    </div>
+  )
+}
+```
+
+然而，实际上 `count` 值只会更新一次，而且打印的值一直都是上一次的值
+
+::: note
+
+`state` 如同一张快照 解释了为什么会出现这种情况。设置状态会请求一个新的重新渲染，但不会在已运行的代码中更改它。所以在你调用 `setScore(score + 1)` 后，score 仍然是 0。
+
+:::
+
+```jsx
+console.log(score) // 0
+setScore(score + 1) // setScore(0 + 1);
+console.log(score) // 0
+setScore(score + 1) // setScore(0 + 1);
+console.log(score) // 0
+setScore(score + 1) // setScore(0 + 1);
+console.log(score) // 0
+```
+
+你可以通过在设置状态时传递一个 更新器函数 来解决这个问题。注意用 `setScore(s => s + 1)` 替换 `setScore(score + 1)` 是如何修复“+3”按钮的。如果你需要排队进行多次状态更新，那么这非常方便。
+
+```jsx
+export default function Counter() {
+  const [score, setScore] = useState(0)
+
+  function increment() {
+    setCount(count + 1) // [!code --]
+    setScore((s) => s + 1) // [!code ++]
+  }
+
+  return (
+    <>
+      <button onClick={() => increment()}>+1</button>
+      <button
+        onClick={() => {
+          increment()
+          increment()
+          increment()
+        }}
+      >
+        +3
+      </button>
+      <h1>Score: {score}</h1>
+    </>
+  )
+}
+```
+
+### 7.3 更新 `state` 中的对象
+
+状态可以持有任何类型的 `JavaScript` 值，包括对象。但你不应该**直接改变**你在 React 状态中持有的对象和数组。相反，当你想更新一个对象和数组时，**你需要创建一个新的对象（或复制现有的对象），然后用这个副本来更新状态**。
+
+通常情况下，你会使用 `...` 展开语法来复制你想改变的对象和数组。例如，更新一个嵌套对象可以是这样的：
+
+```jsx :collapsed-lines
+import { useState } from "react"
+
+export default function Form() {
+  const [person, setPerson] = useState({
+    name: "Niki de Saint Phalle",
+    artwork: {
+      title: "Blue Nana",
+      city: "Hamburg",
+      image: "https://i.imgur.com/Sd1AgUOm.jpg",
+    },
+  })
+
+  function handleNameChange(e) {
+    setPerson({
+      ...person, // [!code highlight]
+      name: e.target.value,
+    })
+  }
+
+  function handleTitleChange(e) {
+    setPerson({
+      ...person, // [!code highlight]
+      artwork: {
+        ...person.artwork, // [!code highlight]
+        title: e.target.value,
+      },
+    })
+  }
+
+  function handleCityChange(e) {
+    setPerson({
+      ...person, // [!code highlight]
+      artwork: {
+        ...person.artwork, // [!code highlight]
+        city: e.target.value,
+      },
+    })
+  }
+
+  function handleImageChange(e) {
+    setPerson({
+      ...person, // [!code highlight]
+      artwork: {
+        ...person.artwork, // [!code highlight]
+        image: e.target.value,
+      },
+    })
+  }
+
+  return (
+    <>
+      <label>
+        Name:
+        <input value={person.name} onChange={handleNameChange} />
+      </label>
+      <label>
+        Title:
+        <input value={person.artwork.title} onChange={handleTitleChange} />
+      </label>
+      <label>
+        City:
+        <input value={person.artwork.city} onChange={handleCityChange} />
+      </label>
+      <label>
+        Image:
+        <input value={person.artwork.image} onChange={handleImageChange} />
+      </label>
+      <p>
+        <i>{person.artwork.title}</i>
+        {" by "}
+        {person.name}
+        <br />
+        (located in {person.artwork.city})
+      </p>
+      <img src={person.artwork.image} alt={person.artwork.title} />
+    </>
+  )
+}
+```
+
+如果在代码中复制对象感觉乏味，可以使用 [Immer](https://github.com/immerjs/use-immer) 之类的库来减少重复代码：
+
+::: npm-to
+
+```sh
+npm install immer use-immer
+```
+
+:::
+
+安装之后，这样使用
+
+::: code-tabs
+
+@tab package.json
+
+```jsonc
+"dependencies": {
+    "immer": "1.7.3", // [!code ++]
+    "react": "latest",
+    "react-dom": "latest",
+    "react-scripts": "latest",
+    "use-immer": "0.5.1" // [!code ++]
+  }
+```
+
+@tab App.jsx
+
+```jsx :collapsed-lines
+import { useImmer } from "use-immer"
+
+export default function Form() {
+  const [person, updatePerson] = useImmer({
+    name: "Niki de Saint Phalle",
+    artwork: {
+      title: "Blue Nana",
+      city: "Hamburg",
+      image: "https://i.imgur.com/Sd1AgUOm.jpg",
+    },
+  })
+
+  function handleNameChange(e) {
+    updatePerson((draft) => {
+      draft.name = e.target.value
+    })
+  }
+
+  function handleTitleChange(e) {
+    updatePerson((draft) => {
+      draft.artwork.title = e.target.value
+    })
+  }
+
+  function handleCityChange(e) {
+    updatePerson((draft) => {
+      draft.artwork.city = e.target.value
+    })
+  }
+
+  function handleImageChange(e) {
+    updatePerson((draft) => {
+      draft.artwork.image = e.target.value
+    })
+  }
+
+  return (
+    <>
+      <label>
+        Name:
+        <input value={person.name} onChange={handleNameChange} />
+      </label>
+      <label>
+        Title:
+        <input value={person.artwork.title} onChange={handleTitleChange} />
+      </label>
+      <label>
+        City:
+        <input value={person.artwork.city} onChange={handleCityChange} />
+      </label>
+      <label>
+        Image:
+        <input value={person.artwork.image} onChange={handleImageChange} />
+      </label>
+      <p>
+        <i>{person.artwork.title}</i>
+        {" by "}
+        {person.name}
+        <br />
+        (located in {person.artwork.city})
+      </p>
+      <img src={person.artwork.image} alt={person.artwork.title} />
+    </>
+  )
+}
+```
+
+:::
+
+你也使用 JS 的 [] 来实现属性的动态命名，使用一个处理函数来更新多个字段
+
+```jsx :collapsed-lines
+import { useState } from "react"
+
+export default function Form() {
+  const [person, setPerson] = useState({
+    firstName: "Barbara",
+    lastName: "Hepworth",
+    email: "bhepworth@sculpture.com",
+  })
+
+  function handleChange(e) {
+    setPerson({
+      ...person,
+      [e.target.name]: e.target.value, // [!code highlight]
+    })
+  }
+
+  return (
+    <>
+      <label>
+        First name:
+        <input
+          name="firstName"
+          value={person.firstName}
+          onChange={handleChange}
+        />
+      </label>
+      <label>
+        Last name:
+        <input
+          name="lastName"
+          value={person.lastName}
+          onChange={handleChange}
+        />
+      </label>
+      <label>
+        Email:
+        <input name="email" value={person.email} onChange={handleChange} />
+      </label>
+      <p>
+        {person.firstName} {person.lastName} ({person.email})
+      </p>
+    </>
+  )
+}
+```
+
+### 7.4 更新 `state` 中的数组
+
+数组是另一种可以存在状态中的可变 `JavaScript` 对象，应将其视为**只读**。就像对象一样，当你想更新存在状态中的数组时，**你需要创建一个新数组（或者复制现有数组），然后用新数组来更新状态**。
+
+```jsx :collapsed-lines
+import { useState } from "react"
+
+const initialList = [
+  { id: 0, title: "Big Bellies", seen: false },
+  { id: 1, title: "Lunar Landscape", seen: false },
+  { id: 2, title: "Terracotta Army", seen: true },
+]
+
+export default function BucketList() {
+  const [list, setList] = useState(initialList)
+
+  function handleToggle(artworkId, nextSeen) {
+    setList(
+      list.map((artwork) => {
+        if (artwork.id === artworkId) {
+          return { ...artwork, seen: nextSeen }
+        } else {
+          return artwork
+        }
+      })
+    )
+  }
+
+  return (
+    <>
+      <h1>Art Bucket List</h1>
+      <h2>My list of art to see:</h2>
+      <ItemList artworks={list} onToggle={handleToggle} />
+    </>
+  )
+}
+
+function ItemList({ artworks, onToggle }) {
+  return (
+    <ul>
+      {artworks.map((artwork) => (
+        <li key={artwork.id}>
+          <label>
+            <input
+              type="checkbox"
+              checked={artwork.seen}
+              onChange={(e) => {
+                onToggle(artwork.id, e.target.checked)
+              }}
+            />
+            {artwork.title}
+          </label>
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+使用 `Immer` 库来简化更新数组
+
+```jsx :collapsed-lines
+import { useState } from "react"
+import { useImmer } from "use-immer"
+
+const initialList = [
+  { id: 0, title: "Big Bellies", seen: false },
+  { id: 1, title: "Lunar Landscape", seen: false },
+  { id: 2, title: "Terracotta Army", seen: true },
+]
+
+export default function BucketList() {
+  const [list, updateList] = useImmer(initialList)
+
+  function handleToggle(artworkId, nextSeen) {
+    updateList((draft) => {
+      const artwork = draft.find((a) => a.id === artworkId)
+      artwork.seen = nextSeen
+    })
+  }
+
+  return (
+    <>
+      <h1>Art Bucket List</h1>
+      <h2>My list of art to see:</h2>
+      <ItemList artworks={list} onToggle={handleToggle} />
+    </>
+  )
+}
+
+function ItemList({ artworks, onToggle }) {
+  return (
+    <ul>
+      {artworks.map((artwork) => (
+        <li key={artwork.id}>
+          <label>
+            <input
+              type="checkbox"
+              checked={artwork.seen}
+              onChange={(e) => {
+                onToggle(artwork.id, e.target.checked)
+              }}
+            />
+            {artwork.title}
+          </label>
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### 7.5 Reducer
+
+对于那些需要更新多个状态的组件来说，过于分散的事件处理程序可能会令人不知所措。
+对于这种情况，**你可以在组件外部将所有状态更新逻辑合并到一个称为 “reducer” 的函数中**。
+这样，事件处理程序就会变得简洁，因为它们只需要指定用户的 “actions”。
+在文件的底部，`reducer` 函数指定状态应该如何更新以响应每个 `action`！
+
+创建 `Reducer`
+
+```jsx
+// 初始数据
+const initialTasks = [
+  { id: 0, text: "这是内容", done: true },
+  { id: 1, text: "hello", done: false },
+]
+
+// 创建 Reducer
+// taskReducer 为 reducer 函数，initialTasks 为初始状态
+const [tasks, dispatch] = useReducer(taskReducer, initialTasks)
+// tasks 为状态，dispatch 为触发状态更新的函数
+```
+
+taskReducer 函数
+
+```jsx
+// taskReducer 函数
+// tasks 为状态，action 为具体操作，由 dispatch 函数传递
+function taskReducer(tasks, action) {
+  // 返回新的状态
+  switch (action.type) {
+    // 添加任务
+    case "added": {
+      return [
+        ...tasks,
+        {
+          id: Math.random(),
+          text: action.text,
+          done: false,
+        },
+      ]
+    }
+    // 更新任务
+    case "update": {
+      return tasks.map((item) => {
+        if (item.id === action.task.id) {
+          return action.task
+        } else {
+          return item
+        }
+      })
+    }
+    // 删除任务
+    case "delete": {
+      return tasks.filter((item) => item.id !== action.id)
+    }
+    default: {
+      throw Error("未知操作: " + action.type)
+    }
+  }
+}
+```
+
+#### 7.5.1 配合 `Immer` 使用
+
+```jsx :collapsed-lines
+import { useImmerReducer } from "use-immer"
+import AddTask from "./AddTask.js"
+import TaskList from "./TaskList.js"
+
+function tasksReducer(draft, action) {
+  switch (action.type) {
+    case "added": {
+      draft.push({
+        id: action.id,
+        text: action.text,
+        done: false,
+      })
+      break
+    }
+    case "changed": {
+      const index = draft.findIndex((t) => t.id === action.task.id)
+      draft[index] = action.task
+      break
+    }
+    case "deleted": {
+      return draft.filter((t) => t.id !== action.id)
+    }
+    default: {
+      throw Error("未知 action：" + action.type)
+    }
+  }
+}
+
+export default function TaskApp() {
+  const [tasks, dispatch] = useImmerReducer(tasksReducer, initialTasks)
+
+  function handleAddTask(text) {
+    dispatch({
+      type: "added",
+      id: nextId++,
+      text: text,
+    })
+  }
+
+  function handleChangeTask(task) {
+    dispatch({
+      type: "changed",
+      task: task,
+    })
+  }
+
+  function handleDeleteTask(taskId) {
+    dispatch({
+      type: "deleted",
+      id: taskId,
+    })
+  }
+
+  return (
+    <>
+      <h1>布拉格的行程安排</h1>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList
+        tasks={tasks}
+        onChangeTask={handleChangeTask}
+        onDeleteTask={handleDeleteTask}
+      />
+    </>
+  )
+}
+
+let nextId = 3
+const initialTasks = [
+  { id: 0, text: "参观卡夫卡博物馆", done: true },
+  { id: 1, text: "看木偶戏", done: false },
+  { id: 2, text: "打卡列侬墙", done: false },
+]
+```
+
+### 7.6 使用 `Context` 深层传递
+
+通常，你会通过 `props` 将信息从父组件传递给子组件。但是，如果要在组件树中深入传递一些 prop，或者树里的许多组件需要使用相同的 prop，那么传递 prop 可能会变得很麻烦。`Context` 允许父组件将一些信息提供给它下层的任何组件，不管该组件多深层也无需通过 props 逐层透传。
+
+`Context` 使组件向其下方的整个树提供信息。
+传递 `Context` 的方法:
+
+- 通过 `export const MyContext = createContext(defaultValue)` 创建并导出 context。
+- 在无论层级多深的任何子组件中，把 `context` 传递给 `useContext(MyContext)` `Hook` 来读取它。
+- 在父组件中把 `children` 包在 `<MyContext.Provider value={...}>` 中来提供 context。
+- `Context` 会穿过中间的任何组件。
+- `Context` 可以让你写出 “较为通用” 的组件。
+- 在使用 `context` 之前，先试试传递 `props` 或者将 `JSX` 作为 `children` 传递。
+
+你需要创建一个文件，并导出一个 `Context` 对象。
+
+```jsx
+import { createContext } from "react"
+
+// 创建 Context
+const MyContext = createContext(defaultValue)
+```
+
+在祖先组件中，使用 `Provider` 组件提供数据
+
+```jsx
+import { useContext } from "react"
+import { MyContext } from "./xxxx.js"
+
+export default function Section({ children }) {
+  const level = useContext(MyContext) // [!code highlight]
+  return (
+    <section className="section">
+      <MyContext.Provider value={level + 1}>{children}</MyContext.Provider>
+    </section>
+  )
+}
+```
+
+在子组件、孙子组件中使用 `Context` 数据
+
+```jsx
+import { useContext } from "react"
+import { MyContext } from "./xxxx.js"
+
+export default function Heading({ children }) {
+  const level = useContext(MyContext)
+  return <h1 style={{ fontSize: 15 + level * 5 }}>{children}</h1>
+}
+```
+
+::: tip
+
+`Context` 让你可以编写“适应周围环境”的组件，并且根据 在哪 （或者说 在哪个 context 中）来渲染它们不同的样子。
+
+Context 的工作方式可能会让你想起 `CSS` 属性继承。在 CSS 中，你可以为一个 `<div>` 手动指定 `color: blue`，并且其中的任何 `DOM` 节点，无论多深，都会继承那个颜色，除非中间的其他 DOM 节点用 color: green 来覆盖它。类似地，**在 React 中，覆盖来自上层的某些 context 的唯一方法是将子组件包裹到一个提供不同值的 `context provider` 中**。
+
+在 `CSS` 中，诸如 `color` 和 `background-color` 之类的不同属性不会覆盖彼此。
+你可以设置所有 `<div>` 的 `color` 为红色，而不会影响 background-color。
+类似地，不同的 `React context` **不会覆盖彼此**。
+你通过 `createContext()` 创建的每个 context 都和其他 context 完全分离，只有使用和提供 那个特定的 context 的组件才会联系在一起。
+一个组件可以轻松地使用或者提供许多不同的 context。
+
+:::
+
+#### 7.6.1 合理使用 Context
+
+使用 `Context` 看起来非常诱人！然而，这也意味着它也太容易被过度使用了。如果你只想把一些 `props` 传递到多个层级中，这并不意味着你需要把这些信息放到 `context` 里。
+
+在使用 `context` 之前，你可以考虑以下几种替代方案：
+
+1. 从 传递 `props` 开始。 如果你的组件看起来不起眼，那么通过十几个组件向下传递一堆 props 并不罕见。这有点像是在埋头苦干，但是这样做可以让哪些组件用了哪些数据变得十分清晰！维护你代码的人会很高兴你用 props 让数据流变得更加清晰。
+
+2. **抽象组件并 将 JSX 作为 children 传递 给它们**。 如果你通过很多层不使用该数据的中间组件（并且只会向下传递）来传递数据，这通常意味着你在此过程中忘记了抽象组件。举个例子，你可能想传递一些像 posts 的数据 props 到不会直接使用这个参数的组件，**类似 `<Layout posts={posts} />`。取而代之的是，让 `Layout` 把 `children` 当做一个参数，然后渲染 `<Layout><Posts posts={posts} /></Layout>`**。这样就减少了定义数据的组件和使用数据的组件之间的层级。
+   如果这两种方法都不适合你，再考虑使用 context。
+
+#### 7.6.2 Context 使用场景
+
+1. **主题**： 如果你的应用允许用户更改其外观（例如暗夜模式），你可以在应用顶层放一个 `context provider`，并在需要调整其外观的组件中使用该 context。
+2. **当前账户**： 许多组件可能需要知道当前登录的用户信息。将它放到 `context` 中可以方便地在树中的任何位置读取它。某些应用还允许你同时操作多个账户（例如，以不同用户的身份发表评论）。在这些情况下，将 UI 的一部分包裹到具有不同账户数据的 `provider` 中会很方便。
+3. **路由**： 大多数路由解决方案在其内部使用 context 来保存当前路由。这就是每个链接“知道”它是否处于活动状态的方式。如果你创建自己的路由库，你可能也会这么做。
+4. **状态管理**： 随着你的应用的增长，最终在靠近应用顶部的位置可能会有很多 state。许多遥远的下层组件可能想要修改它们。通常 将 reducer 与 context 搭配使用来管理复杂的状态并将其传递给深层的组件来避免过多的麻烦。
+
+`Context` 不局限于静态值。如果你在下一次渲染时传递不同的值，`React` 将会更新读取它的所有下层组件！这就是 `context` 经常和 `state` 结合使用的原因。
+
+一般而言，如果树中不同部分的远距离组件需要某些信息，`context` 将会对你大有帮助。
+
+### 7.7 Context + Reducer
+
+**`Reducer` 帮助你合并组件的状态更新逻辑。`Context` 帮助你将信息深入传递给其他组件。**
+你可以将 `reducers` 和 `context` 组合在一起使用，以管理复杂应用的状态。
+
+基于这种想法，使用 reducer 来管理一个具有复杂状态的父组件。
+组件树中任何深度的其他组件都可以通过 context 读取其状态。
+还可以 `dispatch` 一些 `action` 来更新状态。
+
+::: code-tabs
+@tab App.jsx
+
+```jsx
+import { TaskProvider } from "./TaskContext"
+import ChildComponent from "./components/ChildComponent.jsx"
+
+export default function TaskApp() {
+  return (
+    <div>
+      <TaskProvider>
+        <h1>Hello</h1>
+        <ChildComponent />
+      </TaskProvider>
+    </div>
+  )
+}
+```
+
+@tab TaskContext.jsx
+
+```jsx :collapsed-lines
+import { createContext, useContext, useReducer } from "react"
+
+// 创建 TaskContext，用于传递任务数据
+const TaskContext = createContext(null) // [!code highlight]
+// 创建 TaskDispatchContext，用于传递任务更新逻辑
+const TaskDispatchContext = createContext(null) // [!code highlight]
+
+export function TaskProvider({ children }) {
+  const [tasks, dispatch] = useReducer(taskReducer, initialTasks)
+
+  return (
+    <TaskContext.Provider value={tasks}>
+      <TaskDispatchContext.Provider value={dispatch}>
+        {children}
+      </TaskDispatchContext.Provider>
+    </TaskContext.Provider>
+  )
+}
+
+// 暴露给外部使用Context
+export function useTaskContext() {
+  return useContext(TaskContext) // [!code highlight]
+}
+
+export function useTaskDispatchContext() {
+  return useContext(TaskDispatchContext) // [!code highlight]
+}
+
+/**
+ * 处理任务的更新逻辑
+ */
+function taskReducer(tasks, action) {
+  switch (action.type) {
+    case "added": {
+      return [
+        ...tasks,
+        {
+          id: Math.random(),
+          text: action.text,
+          done: false,
+        },
+      ]
+    }
+    case "update": {
+      return tasks.map((item) => {
+        if (item.id === action.task.id) {
+          return action.task
+        } else {
+          return item
+        }
+      })
+    }
+    case "delete": {
+      return tasks.filter((item) => item.id !== action.id)
+    }
+    default: {
+      throw Error("未知操作: " + action.type)
+    }
+  }
+}
+
+const initialTasks = [
+  { id: 0, text: "这是内容", done: true },
+  { id: 1, text: "hello", done: false },
+]
+```
+
+@tab ChildComponent.jsx
+
+```jsx
+import { useTaskContext, useTaskDispatchContext } from "../TaskContext"
+
+export default function ChildComponent() {
+  // 使用Context，返回的是任务列表
+  const tasks = useTaskContext() // [!code highlight]
+  // 返回的是任务更新派发方法
+  const dispatch = useTaskDispatchContext() // [!code highlight]
+
+  if (!tasks) {
+    return <div>NULL</div>
+  }
+
+  function handleAdd() {
+    dispatch({
+      type: "added",
+      id: Date.now(),
+      text: "Hello World",
+      done: false,
+    })
+  }
+
+  return (
+    <div>
+      {tasks.map((item) => (
+        <div key={item.id}>{item.text}</div>
+      ))}
+      <button onClick={handleAdd}>Add</button>
+    </div>
+  )
+}
+```
+
+:::
+
+### 7.8 `Reducer` 对比 `useState`
+
+- **代码体积**： 通常，在使用 `useState` 时，一开始只需要编写少量代码。而 `useReducer` 必须提前编写 reducer 函数和需要调度的 `actions`。但是，当多个事件处理程序以相似的方式修改 state 时，useReducer 可以减少代码量。
+- **可读性**： 当状态更新逻辑足够简单时，useState 的可读性还行。但是，一旦逻辑变得复杂起来，它们会使组件变得臃肿且难以阅读。在这种情况下，useReducer 允许你将状态更新逻辑与事件处理程序分离开来。
+- **可调试性**： 当使用 useState 出现问题时, 你很难发现具体原因以及为什么。 而使用 useReducer 时， 你可以在 reducer 函数中通过打印日志的方式来观察每个状态的更新，以及为什么要更新（来自哪个 `action`）。 如果所有 action 都没问题，你就知道问题出在了 reducer 本身的逻辑中。 然而，与使用 useState 相比，你必须单步执行更多的代码。
+- **可测试性**： reducer 是一个不依赖于组件的纯函数。这就意味着你可以单独对它进行测试。一般来说，我们最好是在真实环境中测试组件，但对于复杂的状态更新逻辑，针对特定的初始状态和 action，断言 reducer 返回的特定状态会很有帮助。
+- **个人偏好**： 并不是所有人都喜欢用 reducer，没关系，这是个人偏好问题。你可以随时在 `useState` 和 `useReducer` 之间切换，它们能做的事情是一样的！
+
+::: tip
+
+如果你在修改某些组件状态时经常出现问题或者想给组件添加更多逻辑时，我们建议你还是使用 reducer。当然，你也不必整个项目都用 reducer，这是可以自由搭配的。你甚至可以在一个组件中同时使用 `useState` 和 `useReducer`。
+
+:::
+
+**编写 reducer 时最好牢记以下两点**：
+
+- **`reducer` 必须是纯粹的**。 这一点和 状态更新函数 是相似的，reducer 是在渲染时运行的！（actions 会排队直到下一次渲染)。 这就意味着 reducer 必须纯净，即当输入相同时，输出也是相同的。它们不应该包含异步请求、定时器或者任何副作用（对组件外部有影响的操作）。它们应该以不可变值的方式去更新 对象 和 数组。
+- **每个 action 都描述了一个单一的用户交互，即使它会引发数据的多个变化**。 举个例子，如果用户在一个由 reducer 管理的表单（包含五个表单项）中点击了 重置按钮，那么 dispatch 一个 reset_form 的 action 比 `dispatch` 五个单独的 set_field 的 action 更加合理。如果你在一个 reducer 中打印了所有的 action 日志，那么这个日志应该是很清晰的，它能让你以某种步骤复现已发生的交互或响应。这对代码调试很有帮助！
+
+## 8. Props
+
+`React` 组件使用 `props` 来互相通信。每个父组件都可以提供 `props` 给它的子组件，从而将一些信息传递给它。Props 可能会让你想起 HTML 属性，但你可以通过它们传递任何 `JavaScript` 值，包括对象、数组和函数。
+
+::: caution
+
+props 是 不可变的（一个计算机科学术语，意思是“不可改变”）。当一个组件需要改变它的 props（例如，响应用户交互或新数据）时，它不得不“请求”它的父组件传递 不同的 props —— 一个新对象！它的旧 props 将被丢弃，最终 JavaScript 引擎将回收它们占用的内存。
+
+**不要尝试“更改 props”**
+
+:::
+
+- 要传递 `props`，请将它们添加到 `JSX`，就像使用 `HTML` 属性一样。
+- 要读取 props，请使用 `function Avatar({ person, size })` 解构语法。
+- 你可以指定一个默认值，如 size = 100，用于缺少值或值为 `undefined` 的 props 。
+- 你可以使用 `<Avatar {...props} />` JSX 展开语法转发所有 props，但不要过度使用它！
+- 像 `<Card><Avatar /></Card>` 这样的嵌套 JSX，将被视为 Card 组件的 `children prop`。
+- Props 是只读的时间快照：每次渲染都会收到新版本的 props。
+- 你不能改变 props。当你需要交互性时，你可以设置 `state`。
+
+### 8.1 向组件传递 `props`
+
+传递参数给组件
+
+```jsx
+export default function Profile() {
+  return (
+    <Avatar person={{ name: "Lin Lanying", imageId: "1bX5QH6" }} size={100} />
+  )
+}
+```
+
+接收参数的组件
+
+```jsx
+function Avatar({ person, size }) {
+  return (
+    <img
+      className="avatar"
+      src={`https://i.imgur.com/${person.imageId}.jpg`}
+      alt={person.name}
+      width={size}
+      height={size}
+    />
+  )
+}
+```
+
+### 8.2 设置默认值
+
+如果你想在没有指定值的情况下给 prop 一个默认值，你可以通过在参数后面写 = 和默认值来进行解构：
+
+```jsx
+function Avatar({ person, size = 100 }) {
+  // ...
+}
+```
+
+::: note
+现在， 如果 `<Avatar person={...} />` 渲染时没有 `size prop`， size 将被赋值为 100。
+
+默认值仅在缺少 `size prop` 或 `size={undefined}` 时生效。 但是如果你传递了 `size={null}` 或 `size={0}`，默认值将**不被使用**。
+
+:::
+
+### 8.3 展开 props
+
+有时候，传递 props 会变得非常重复,
+如果你有很多 props，并且你不想一个一个地传递它们，你可以使用展开语法：
+
+```jsx
+export default function Profile() {
+  const person = { name: "Lin Lanying", imageId: "1bX5QH6" }
+  return <Avatar {...person} size={100} />
+}
+```
+
+**请克制地使用展开语法。** 如果你在所有其他组件中都使用它，那就有问题了。 通常，它表示你应该拆分组件，并将子组件作为 JSX 传递。 接下来会详细介绍！
+
+### 8.4 组件作为 props
+
+将组件作为 `props` 进行传递
+
+```jsx
+import ChildComponent from "./components/ChildComponent"
+
+export default function App() {
+  return (
+    <div>
+      <Card>
+        {/* 子组件，将作为children props传递*/}
+        <ChildComponent />
+      </Card>
+    </div>
+  )
+}
+
+// chidren props 为嵌套的子组件
+function Card({ children }) {
+  return (
+    <div className="card">
+      我是card
+      {children}
+    </div>
+  )
+}
+```
+
+## 9. 响应事件
+
+使用 React 可以在 JSX 中添加 事件处理函数。其中事件处理函数为自定义函数，它将在响应交互（如点击、悬停、表单输入框获得焦点等）时触发。
+
+- 你可以通过将函数作为 prop 传递给元素如 `<button>` 来处理事件。
+- 必须传递事件处理函数，而非函数调用！ `onClick={handleClick}` ，不是 `onClick={handleClick()}`。
+- 你可以单独或者内联定义事件处理函数。
+- 事件处理函数在组件内部定义，所以它们可以访问 `props`。
+- 你可以在父组件中定义一个事件处理函数，并将其作为 prop 传递给子组件。
+- 你可以根据特定于应用程序的名称定义事件处理函数的 prop。
+- 事件会向上传播。通过事件的第一个参数调用 `e.stopPropagation()` 来防止这种情况。
+- 事件可能具有不需要的浏览器默认行为。调用 `e.preventDefault()` 来阻止这种情况。
+- 从子组件显式调用事件处理函数 prop 是事件传播的另一种优秀替代方案。
+
+按照如下三个步骤，即可让它在用户点击时显示消息：
+
+:::: steps
+
+1. 在 `Button` 组件 内部 声明一个名为 `handleClick` 的函数。
+
+2. 实现函数内部的逻辑（使用 `alert` 来显示消息）。
+
+3. 添加 `onClick={handleClick}` 到 `<button>` JSX 中。
+
+4. 最终实现代码:
+
+```jsx
+export default function Button() {
+  function handleClick() {
+    alert("你点击了我！")
+  }
+
+  return <button onClick={handleClick}>点我</button> // [!code highlight]
+}
+```
+
+::::
+
+你可以定义 `handleClick` 函数然后 将其作为 `prop` 传入 `<button>`。其中 `handleClick` 是一个 事件处理函数 。事件处理函数有如下特点:
+
+- 通常在你的组件 内部 定义。
+- 名称以 `handle` 开头，后跟事件名称。
+
+::: note
+
+按照惯例，通常将事件处理程序命名为 `handle`，后接事件名。你会经常看到 `onClick={handleClick}`，`onMouseEnter={handleMouseEnter}` 等。
+
+:::
+
+你也可以使用其他内联的方式设置事件处理函数:
+
+```jsx
+<button onClick={function handleClick() {
+  alert('你点击了我！');
+}}>
+```
+
+也可以使用箭头函数:
+
+```jsx
+<button onClick={() => {
+  alert('你点击了我！');
+}}>
+```
+
+::: warning
+
+传递给事件处理函数的函数应直接传递，而非调用。例如：
+
+| 传递一个函数（正确）             | 调用一个函数                       |
+| -------------------------------- | ---------------------------------- |
+| `<button onClick={handleClick}>` | `<button onClick={handleClick()}>` |
+
+区别很微妙。在第一个示例中，`handleClick` 函数作为 `onClick` 事件处理函数传递。这会让 `React` 记住它，并且只在用户点击按钮时调用你的函数。
+
+在第二个示例中，`handleClick()` 中最后的 () **会在渲染过程中立即触发函数**，即使没有任何点击。这是因为位于 `JSX {}` 之间的 `JavaScript` 会立即执行。
+
+当你编写内联代码时，同样的陷阱可能会以不同的方式出现：
+
+| 传递一个函数（正确）                     | 调用一个函数                       |
+| ---------------------------------------- | ---------------------------------- |
+| `<button onClick={() => handleClick()}>` | `<button onClick={handleClick()}>` |
+
+在这两种情况下，你都应该传递一个函数：
+
+- `<button onClick={handleClick}>` 传递了 `handleClick` 函数。
+- `<button onClick={() => alert('...')}>` 传递了 `() => alert('...')` 函数。
+
+:::
+
+### 9.1 命名事件处理函数
+
+内置组件（`<button>` 和 `<div>`）仅支持 浏览器事件名称，例如 `onClick`。但是，当你构建自己的组件时，你可以按你个人喜好命名事件处理函数的 prop。
+
+::: tip
+
+按照惯例，事件处理函数 `props` 应该以 `on` 开头，后跟一个**大写字母**。
+
+:::
+
+### 9.2 事件传播
+
+事件处理函数还将捕获任何来自子组件的事件。通常，我们会说事件会沿着树向上“冒泡”或“传播”：它从事件发生的地方开始，然后沿着树向上传播。
+
+::: tip
+
+在 `React` 中所有事件都会传播，除了 `onScroll`，它仅适用于你附加到的 `JSX` 标签。
+
+:::
+
+#### 9.2.1 阻止传播
+
+事件处理函数接收一个 事件对象 作为唯一的参数。按照惯例，它通常被称为 e ，代表 “event”（事件）。你可以使用此对象来读取有关事件的信息。
+
+这个事件对象还允许你阻止传播。如果你想阻止一个事件到达父组件，你需要像下面 `Button` 组件那样调用 `e.stopPropagation()` ：
+
+::: details
+
+```jsx
+function Button({ onClick, children }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation() // [!code highlight]
+        onClick()
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+export default function Toolbar() {
+  return (
+    <div
+      className="Toolbar"
+      onClick={() => {
+        alert("你点击了 toolbar ！")
+      }}
+    >
+      <Button onClick={() => alert("正在播放！")}>播放电影</Button>
+      <Button onClick={() => alert("正在上传！")}>上传图片</Button>
+    </div>
+  )
+}
+```
+
+:::
+
+#### 9.2.2 捕获事件
+
+极少数情况下，你可能需要捕获子元素上的所有事件，**即便它们阻止了传播。例如，你可能想对每次点击进行埋点记录**，传播逻辑暂且不论。那么你可以通过在事件名称末尾添加 `Capture` 来实现这一点：
+
+```jsx
+<div
+  onClickCapture={() => {
+    /* 这会首先执行 */
+  }}
+>
+  <button onClick={(e) => e.stopPropagation()} />
+  <button onClick={(e) => e.stopPropagation()} />
+</div>
+```
+
+每个事件分三个阶段传播：
+
+- 它向下传播，调用所有的 `onClickCapture` 处理函数。
+- 它执行被点击元素的 `onClick` 处理函数。
+- 它向上传播，调用所有的 `onClick` 处理函数。
+- 捕获事件对于路由或数据分析之类的代码很有用，但你可能不会在应用程序代码中使用它们。
+
+#### 9.2.3 阻止默认行为
+
+某些浏览器事件具有与事件相关联的默认行为。例如，点击 `<form>` 表单内部的按钮会触发表单提交事件，默认情况下将重新加载整个页面：
+
+```jsx
+<form
+  onSubmit={(e) => {
+    e.preventDefault() // [!code highlight]
+    alert("提交表单！")
+  }}
+>
+  <input />
+  <button>发送</button>
+</form>
+```
+
+## 10. Ref
+
+当你希望组件“**记住**”某些信息，但又**不想让这些信息 触发新的渲染** 时，你可以使用 `ref`：
+
+```jsx
+const myRef = useRef(initialValue)
+```
+
+与 `state` 一样，ref 在重新渲染之间由 `React` 保留。但是，设置 `state` 会重新渲染组件，而更改 `ref` 不会！你可以通过 `ref.current` 属性访问该 ref 的当前值。
+
+```jsx
+import { useRef } from "react"
+
+export default function Counter() {
+  let ref = useRef(0) // [!code highlight]
+
+  function handleClick() {
+    ref.current = ref.current + 1
+    alert("你点击了 " + ref.current + " 次!")
+  }
+
+  return <button onClick={handleClick}>点我！</button>
+}
+```
+
+`ref` 就像组件的一个不被 `React` 追踪的秘密口袋。例如，**可以使用 `ref` 来存储 `timeout ID`、`DOM` 元素 和其他不影响组件渲染输出的对象**。
+
+### 10.1 使用 `ref` 访问 `DOM` 元素
+
+```jsx
+import { useRef } from "react"
+
+export default function Form() {
+  const inputRef = useRef(null)
+
+  function handleClick() {
+    // 设置 DOM 元素的焦点
+    inputRef.current.focus() // [!code highlight]
+  }
+
+  return (
+    <>
+      <input ref={inputRef} />
+      <button onClick={handleClick}>聚焦输入框</button>
+    </>
+  )
+}
+```
+
+::: note
+
+访问列表中的元素，使用 `ref` 来获取 DOM 元素。
+
+这种是错误做法:
+
+```jsx
+<ul>
+  {items.map((item) => {
+    // 行不通！
+    const ref = useRef(null)
+    return <li ref={ref} />
+  })}
+</ul>
+```
+
+正确做法:
+
+使用 Map 维护 Ref 列表:
+
+```jsx
+// 使用 Map
+function getMap() {
+  if (!itemsRef.current) {
+    // 首次运行时初始化 Map。
+    itemsRef.current = new Map()
+  }
+  return itemsRef.current
+}
+```
+
+在 `map` 中存储 `ref` 的值，可以避免每次渲染时重新创建 `ref`。
+
+```jsx
+<ul>
+  {catList.map((cat) => (
+    <li
+      key={cat}
+      ref={(node) => {
+        const map = getMap() // [!code highlight]
+        if (node) {
+          // 有 node 参数，表示添加元素
+          map.set(cat, node) // [!code highlight]
+        } else {
+          // 没有 node 参数，表示删除元素
+          map.delete(cat) // [!code highlight]
+        }
+      }}
+    >
+      <img src={cat} />
+    </li>
+  ))}
+</ul>
+```
+
+也可以使用这种方法:
+
+```jsx
+<li
+  key={cat.id}
+  ref={node => {
+    const map = getMap();
+    // Add to the Map
+    map.set(cat, node);
+
+    return () => {
+      // Remove from the Map
+      map.delete(cat);
+    };
+  }}
+>
+```
+
+:::
+
+`React` 默认 `ref` 不允许组件访问其他组件的 `DOM` 节点
+
+解决办法: 使用 `forwardRef` 来访问其他组件的 `DOM` 节点
+
+```jsx
+import { useRef, forwardRef } from "react"
+
+export default function TaskApp() {
+  const inputRef = useRef(null)
+
+  function handleClick() {
+    // 这里可以访问到 MyInput 组件的 DOM 节点
+    inputRef.current.focus() // [!code highlight]
+  }
+
+  return (
+    <div>
+      <MyInput ref={inputRef}></MyInput> // [!code highlight]
+      <button onClick={handleClick}>Click</button>
+    </div>
+  )
+}
+
+// 使用 forwardRef 来访问其他组件的 DOM 节点
+const MyInput = forwardRef((props, ref) => {
+  return <input {...props} ref={ref} />
+})
+```
+
+在上面的例子中，`MyInput` 暴露了原始的 `DOM` 元素 input。这让父组件可以对其调用 `focus()`。然而，这也让父组件能够做其他事情 —— 例如，改变其 `CSS` 样式。在一些不常见的情况下，你可能希望限制暴露的功能。你可以用 `useImperativeHandle` 做到这一点：
+
+```jsx
+import { useRef, useImperativeHandle, forwardRef } from "react"
+
+const MyInput = forwardRef((props, ref) => {
+  const realInputRef = useRef(null)
+  useImperativeHandle(ref, () => ({
+    // 只暴露 focus，没有别的
+    focus() {
+      realInputRef.current.focus()
+    },
+  }))
+  return <input {...props} ref={realInputRef} />
+})
+```
+
+### 10.2 使用 Effect 进行同步
+
+类似 `Vue` 的 `watch` 功能，使用 `Effect` 来同步 `ref` 的值。
+
+多按几次播放/暂停，观察视频播放器如何与 isPlaying 属性值保持同步：
+
+```jsx :collapsed-lines
+import { useState, useRef, useEffect } from "react"
+
+function VideoPlayer({ src, isPlaying }) {
+  const ref = useRef(null)
+
+  // 使用 Effect 来控制视频播放
+  // 当 isPlaying 发生变化时，执行 Effect 中的逻辑
+  useEffect(() => {
+    // 如果 isPlaying 为 true，则播放视频
+    if (isPlaying) {
+      // 操作 DOM 元素
+      ref.current.play()
+    } else {
+      ref.current.pause()
+    }
+  }, [isPlaying]) // [!code highlight]
+
+  return <video ref={ref} src={src} loop playsInline />
+}
+
+export default function App() {
+  const [isPlaying, setIsPlaying] = useState(false)
+  return (
+    <>
+      <button onClick={() => setIsPlaying(!isPlaying)}>
+        {isPlaying ? "暂停" : "播放"}
+      </button>
+      <VideoPlayer
+        isPlaying={isPlaying}
+        src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+      />
+    </>
+  )
+}
+```
+
+### 10.3 Ref 与 State 的区别
+
+- `ref` 的值在组件的整个生命周期中保持不变。
+- `state` 的值在每次渲染时都可能不同。
+- `ref` 不会触发重新渲染。
+- `state` 会触发重新渲染。
+- `ref` 通常用于访问 DOM 元素或管理不依赖于渲染输出的对象。
+- `state` 用于管理组件内部的状态，这些状态需要触发重新渲染。
+- 你不应在渲染期间读取（或写入） `current` 值。
+
+### 10.4 `flushSync`
+
+在 `React` 中，`state` 更新是排队进行的。通常，这就是你想要的。但是，在这个示例中会导致问题，因为 `setTodos` 不会立即更新 DOM。因此，当你将列表滚动到最后一个元素时，尚未添加待办事项。这就是滚动总是“落后”一项的原因。
+
+要解决此问题，你可以强制 `React` 同步更新（“刷新”）DOM。 为此，从 `react-dom` 导入 `flushSync` 并将 state 更新包裹 到 `flushSync` 调用中：
+
+```jsx
+flushSync(() => {
+  setTodos([...todos, newTodo])
+})
+listRef.current.lastChild.scrollIntoView()
+```

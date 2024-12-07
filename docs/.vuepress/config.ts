@@ -1,6 +1,6 @@
-import { viteBundler } from "@vuepress/bundler-vite"
-import { defineUserConfig } from "vuepress"
-import { plumeTheme } from "vuepress-theme-plume"
+import {viteBundler} from "@vuepress/bundler-vite"
+import {defineUserConfig} from "vuepress"
+import {plumeTheme} from "vuepress-theme-plume"
 
 export default defineUserConfig({
   base: "/",
@@ -9,7 +9,7 @@ export default defineUserConfig({
   description: "冬日暖雨的个人主页,记录学习到的技术。包含博客、笔记、App",
 
   head: [
-    ["link", { rel: "icon", href: "/avatar.png" }],
+    ["link", {rel: "icon", href: "/avatar.png"}],
     [
       "meta",
       {
@@ -59,6 +59,7 @@ export default defineUserConfig({
           "markdown",
           "dockerfile",
           "docker",
+          "jsonc"
         ],
       },
 
