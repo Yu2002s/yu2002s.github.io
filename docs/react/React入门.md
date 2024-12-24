@@ -1850,7 +1850,48 @@ const MyInput = forwardRef((props, ref) => {
 
 类似 `Vue` 的 `watch` 功能，使用 `Effect` 来同步 `ref` 的值。
 
-多按几次播放/暂停，观察视频播放器如何与 isPlaying 属性值保持同步：
+1. **声明 Effect**。通常 Effect 会在每次 提交 后运行。
+2. **指定 Effect 依赖**。大多数 Effect 应该按需运行，而不是在每次渲染后都运行。例如，淡入动画应该只在组件出现时触发。连接和断开服务器的操作只应在组件出现和消失时，或者切换聊天室时执行。你将通过指定 依赖项 来学习如何控制这一点。
+3. **必要时添加清理操作**。一些 Effect 需要指定如何停止、撤销，或者清除它们所执行的操作。例如，“连接”需要“断开”，“订阅”需要“退订”，而“获取数据”需要“取消”或者“忽略”。你将学习如何通过返回一个 清理函数 来实现这些。
+
+```jsx
+export default function ChildComponent() {
+  const [count, setCount] = useState(0)
+
+  // useEffect 在组件渲染之后执行
+  useEffect(() => {
+    // 每次渲染都会执行此处代码
+    console.log("useEffect")
+    return () => {
+      console.log("destroy")
+    }
+  })
+
+  return <div>Child Component {count}</div>
+}
+```
+
+**每当你的组件渲染时，React 会先更新页面**，然后再运行 `useEffect` 中的代码。换句话说，**`useEffect` 会“延迟”一段代码的运行，直到渲染结果反映在页面上**。
+
+浏览器的 `<video>` 标签没有 `isPlaying` 属性。控制它的唯一方式是在 `DOM` 元素上调用 `play()` 和 `pause()` 方法。因此，你需要将 isPlaying prop 的值（表示视频当前是否应该播放）与 `play()` 和 `pause()` 等函数的调用进行同步。
+
+我们首先需要获取 `<video>` DOM 节点的 对象引用。
+
+你可能会尝试在渲染期间调用 `play()` 或 `pause()`，但这样做是不对的：
+
+```jsx
+const ref = useRef(null)
+
+if (isPlaying) {
+  ref.current.play() // 渲染期间不能调用 `play()`。
+} else {
+  ref.current.pause() // 同样，调用 `pause()` 也不行。
+}
+```
+
+解决办法是 使用 `useEffect` 包裹副作用，**把它分离到渲染逻辑的计算过程之外**：
+
+多按几次播放/暂停，观察视频播放器如何与 `isPlaying` 属性值保持同步：
 
 ```jsx :collapsed-lines
 import { useState, useRef, useEffect } from "react"
@@ -1868,7 +1909,7 @@ function VideoPlayer({ src, isPlaying }) {
     } else {
       ref.current.pause()
     }
-  }, [isPlaying]) // [!code highlight]
+  })
 
   return <video ref={ref} src={src} loop playsInline />
 }
@@ -1888,6 +1929,132 @@ export default function App() {
   )
 }
 ```
+
+::: note
+
+默认情况下，`Effect` 会在 每次 渲染后运行。正因如此，**以下代码会陷入死循环**：
+
+```jsx
+const [count, setCount] = useState(0)
+useEffect(() => {
+  setCount(count + 1)
+})
+```
+
+:::
+
+#### 10.2.1 指定 Effect 的依赖
+
+默认情况下，`Effect` 会在 **每次** 渲染后运行。但往往 这并不是你想要的：
+
+有时，它可能会很慢。与外部系统的同步并不总是即时的，所以你可能希望在不必要时跳过它。例如，你不会想在每次打字时都得重新连接聊天服务器。
+有时，它可能会出错。例如，你不会想在每次按键时都触发组件的淡入动画。动画应该只在组件首次出现时播放。
+
+通过在调用 `useEffect` 时指定一个 依赖数组 作为第二个参数，你可以让 `React` 跳过不必要地重新运行 `Effect`。
+
+```jsx
+useEffect(() => {
+  // ...
+}, []) // [!code ++]
+```
+
+但是，如果依赖数组为空，`Effect` 将不会在任何情况下运行。将产生以下错误：
+
+```
+React Hook useEffect has a missing dependency: 'isPlaying'. Either include it or remove the dependency array.
+```
+
+原因在于，你的 `Effect` 内部代码依赖于 `isPlaying prop` 来决定该做什么，但你并没有显式声明这个依赖关系。为了解决这个问题，**将 `isPlaying` 添加至依赖数组中**：
+
+```jsx
+useEffect(() => {
+  if (isPlaying) {
+    // isPlaying 在此处使用……
+    // ...
+  } else {
+    // ...
+  }
+  // ……所以它必须在此处声明！
+}, [isPlaying]) // [!code ++]
+```
+
+现在所有的依赖都已经声明，所以没有错误了。指定 `[isPlaying]` 作为依赖数组会告诉 `React`：如果 `isPlaying` 与上次渲染时相同，就跳过重新运行 `Effect`。这样一来，输入框的输入不会触发 `Effect` 重新运行，只有按下播放/暂停按钮会触发。
+
+依赖数组可以包含多个依赖项。只有当你指定的 **所有** 依赖项的值都与上一次渲染时完全相同，`React` 才会跳过重新运行该 `Effect`。`React` 使用 `Object.is` 来比较依赖项的值。
+
+::: note
+
+```jsx
+useEffect(() => {
+  // 这里的代码会在每次渲染后运行
+})
+```
+
+```jsx
+useEffect(() => {
+  // 这里的代码只会在组件挂载（首次出现）时运行
+}, [])
+```
+
+```jsx
+useEffect(() => {
+  // 这里的代码不但会在组件挂载时运行，而且当 a 或 b 的值自上次渲染后发生变化后也会运行
+}, [a, b])
+```
+
+:::
+
+#### 10.2.2 必要时添加清理操作
+
+考虑一个不同的例子。假如你正在编写一个 `ChatRoom` 组件，该组件在显示时需要连接到聊天服务器。现在为你提供了 `createConnection()` API，该 API 返回一个包含 `connect()` 与 `disconnection()` 方法的对象。如何确保组件在显示时始终保持连接？
+
+从编写 Effect 的逻辑开始：
+
+```jsx
+useEffect(() => {
+  const connection = createConnection()
+  connection.connect()
+})
+```
+
+上面每次渲染都会重新创建连接，这显然不是你想要的。
+
+```jsx
+useEffect(() => {
+  const connection = createConnection()
+  connection.connect()
+}, []) // [!code ++]
+```
+
+**由于 `Effect` 中的代码没有使用任何 `props` 或 `state`，所以依赖数组为空数组 `[]`。这告诉 `React` 仅在组件“挂载”（即首次显示在页面上）时运行此代码**。
+
+但是，如果 `ChatRoom` 组件在显示时需要连接到聊天服务器，而在隐藏时需要断开连接，该怎么办？
+
+为了解决这个问题，`Effect` 需要返回一个清理函数(cleanup function)。
+
+```jsx
+useEffect(() => {
+  const connection = createConnection()
+  connection.connect()
+  return () => {
+    connection.disconnect() // [!code ++]
+  }
+}, [])
+```
+
+**React 会在每次 `Effect` 重新运行之前调用清理函数，并在组件卸载（被移除）时最后一次调用清理函数**。
+
+现在在开发环境下，你会看到三条控制台日志：
+
+1. "✅ 连接中……"
+2. "❌ 连接断开。"
+3. "✅ 连接中……"
+
+::: note
+在开发环境下，这是正确的行为。通过重新挂载你的组件，`React` 验证了离开页面再返回不会导致代码出错。因为本就应该先断开然后再重新连接！如果你很好地实现了清理函数，那么无论是只执行一次 `Effect` ，还是执行、清理、再执行，都应该没有用户可见的区别。**之所以会有额外的一次 `connect/disconnect` 调用，是因为在开发环境下 `React` 在检测你代码中的 bug。因此这是正常现象，不要去试图消除它！**
+
+在生产环境下，你只会看到 "✅ 连接中……" 打印一次。这是因为重新挂载组件只会在开发环境下发生，以此帮助你找到需要清理的 `Effect`。**你可以通过关闭 严格模式 来禁用这个行为**，但我们建议保留它。它可以帮助你发现许多类似上述的 bug。
+:::
 
 ### 10.3 Ref 与 State 的区别
 
@@ -1911,3 +2078,93 @@ flushSync(() => {
 })
 listRef.current.lastChild.scrollIntoView()
 ```
+
+## 11. 移除不需要的 Effect
+
+### 11.1 多余的 state 和不必要的 Effect
+
+假设你有一个包含了两个 state 变量的组件：`firstName` 和 `lastName`。你想通过把它们联结起来计算出 `fullName`。此外，每当 `firstName` 和 `lastName` 变化时，你希望 `fullName` 都能更新。你的第一直觉可能是添加一个 state 变量：`fullName`，并在一个 `Effect` 中更新它：
+
+```jsx
+function Form() {
+  const [firstName, setFirstName] = useState("Taylor")
+  const [lastName, setLastName] = useState("Swift")
+
+  // 🔴 避免：多余的 state 和不必要的 Effect
+  const [fullName, setFullName] = useState("")
+  useEffect(() => {
+    setFullName(firstName + " " + lastName)
+  }, [firstName, lastName])
+  // ...
+}
+```
+
+大可不必这么复杂。而且这样效率也不高：它先是用 fullName 的旧值执行了整个渲染流程，然后立即使用更新后的值又重新渲染了一遍。让我们移除 state 变量和 Effect：
+
+```jsx
+function Form() {
+  const [firstName, setFirstName] = useState("Taylor")
+  const [lastName, setLastName] = useState("Swift")
+  // ...
+  // ✅ 非常好：在渲染期间进行计算
+  const fullName = firstName + " " + lastName
+}
+```
+
+::: note
+
+**如果一个值可以基于现有的 props 或 state 计算得出**，不要把它作为一个 state，而是在渲染期间直接计算这个值。这将使你的代码更快（避免了多余的 “级联” 更新）、更简洁（移除了一些代码）以及更少出错（避免了一些因为不同的 state 变量之间没有正确同步而导致的问题）。如果这个观点对你来说很新奇，React 哲学 中解释了什么值应该作为 state。
+
+:::
+
+### 11.2 缓存昂贵的计算
+
+这个组件使用它接收到的 props 中的 filter 对另一个 prop todos 进行筛选，计算得出 visibleTodos。你的直觉可能是把结果存到一个 state 中，并在 Effect 中更新它：
+
+```jsx
+function TodoList({ todos, filter }) {
+  const [newTodo, setNewTodo] = useState("")
+
+  // 🔴 避免：多余的 state 和不必要的 Effect
+  const [visibleTodos, setVisibleTodos] = useState([])
+  useEffect(() => {
+    setVisibleTodos(getFilteredTodos(todos, filter))
+  }, [todos, filter])
+
+  // ...
+}
+```
+
+正确做法是，首先，移除 state 和 Effect：
+
+```jsx
+function TodoList({ todos, filter }) {
+  const [newTodo, setNewTodo] = useState("")
+  // ✅ 如果 getFilteredTodos() 的耗时不长，这样写就可以了。
+  const visibleTodos = getFilteredTodos(todos, filter)
+  // ...
+}
+```
+
+一般来说，这段代码没有问题！但是，`getFilteredTodos()` 的耗时可能会很长，或者你有很多 todos。这些情况下，当 newTodo 这样不相关的 state 变量变化时，你并不想重新执行 getFilteredTodos()。
+
+你可以使用 `useMemo` Hook 缓存（或者说 记忆（memoize））一个昂贵的计算。
+
+```jsx
+import { useMemo, useState } from "react"
+
+function TodoList({ todos, filter }) {
+  const [newTodo, setNewTodo] = useState("")
+  const visibleTodos = useMemo(() => {
+    // ✅ 除非 todos 或 filter 发生变化，否则不会重新执行
+    return getFilteredTodos(todos, filter)
+  }, [todos, filter])
+  // ...
+}
+```
+
+这会告诉 `React`，**除非 `todos` 或 `filter` 发生变化，否则不要重新执行传入的函数**。React 会在初次渲染的时候记住 `getFilteredTodos()` 的返回值。在下一次渲染中，它会检查 todos 或 filter 是否发生了变化。如果它们跟上次渲染时一样，useMemo 会直接返回它最后保存的结果。如果不一样，React 将再次调用传入的函数（并保存它的结果）。
+
+你传入 useMemo 的函数会在渲染期间执行，所以它仅适用于 纯函数 场景。
+
+## 自定义 Hook
