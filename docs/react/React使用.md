@@ -1,12 +1,15 @@
 ---
-title: React入门
+title: React使用
 createTime: 2024/11/28 19:50:12
 permalink: /article/nszll1ye/
+tags: [React]
 ---
 
 ## 1. `React` 是什么
 
 `React` 是一个用于构建用户界面的 `JavaScript` 库，主要用于构建单页应用。
+
+<!-- more -->
 
 ## 2. `React` 的特点
 

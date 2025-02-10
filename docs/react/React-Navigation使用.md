@@ -2,7 +2,12 @@
 title: React-Navigation使用
 createTime: 2024/12/24 21:11:19
 permalink: /article/43bzwomc/
+tags: [React, React-Navigation, Router]
 ---
+
+`React Native` 原生应用导航框架，更接近原生的体验
+
+<!-- more -->
 
 ## React-Navigation
 

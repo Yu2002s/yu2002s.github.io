@@ -2,6 +2,7 @@
 title: JS实现浏览器下载文件和转换数据格式
 createTime: 2024/11/24 09:25:48
 permalink: /article/oi7jgato/
+tags: [JavaScript, 文件流]
 ---
 
 实际开发中难免会遇到下载文件的需求，比如下载图片、下载视频、下载 PDF 等。
