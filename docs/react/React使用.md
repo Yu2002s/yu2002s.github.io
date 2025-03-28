@@ -2170,4 +2170,733 @@ function TodoList({ todos, filter }) {
 
 你传入 useMemo 的函数会在渲染期间执行，所以它仅适用于 纯函数 场景。
 
-## 自定义 Hook
+## 12. React Hooks
+
+React 的一些钩子，已省略 `useState`、`useReducer`，请查看使用案例
+
+### 12.1 `useSyncExternalStore`
+
+`useSyncExternalStore` 是 `React 18` 引入的一个 `Hook`，用于从外部存储（例如状态管理库、浏览器 API 等）获取状态并在组件中同步显示。这对于需要跟踪外部状态的应用非常有用。
+
+#### 12.1.1 使用场景
+
+1.订阅外部 store 例如(redux,Zustand德语)
+2.订阅浏览器API 例如(online,storage,location)等
+3.抽离逻辑，编写自定义hooks
+4.服务端渲染支持
+
+#### 12.1.2 用法
+
+```ts
+const res = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot?)
+```
+
+- subscribe：用来订阅数据源的变化，接收一个回调函数，在数据源更新时调用该回调函数。
+- getSnapshot：获取当前数据源的快照（当前状态）。
+- getServerSnapshot?：在服务器端渲染时用来获取数据源的快照。
+
+返回值：该 res 的当前快照，可以在你的渲染逻辑中使用
+
+```tsx
+const subscribe = (callback: () => void) => {
+    // 订阅
+    callback() 
+    return () => { 
+        // 取消订阅
+    }
+}
+
+const getSnapshot = () => {
+    return data
+}
+
+const res = useSyncExternalStore(subscribe, getSnapshot)
+```
+
+#### 12.1.3 案例
+
+订阅浏览器 `localSotrage`, 可以确保组件在 `localStorage` 数据发生变化时，自动更新同步。
+
+```ts
+import {useSyncExternalStore} from "react";
+
+export const useStorage = (key: string, initialValue: any) => {
+
+  // 订阅者
+  const subscribe = (callback: () => void) => {
+    // 订阅浏览器 API
+    window.addEventListener('storage', callback)
+    return () => {
+      // 取消订阅
+      window.removeEventListener('storage', callback)
+    }
+  }
+
+  const getServerSnapshot = () => {
+    // 服务器端渲染
+    return initialValue
+  }
+
+  const getSnapshot = () => {
+    // 获取浏览器 API
+    return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)!) : initialValue
+  }
+
+  const res = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+
+  const updateStorage = (value: any) => {
+    localStorage.setItem(key, JSON.stringify(value))
+    window.dispatchEvent(new StorageEvent('storage'))
+  }
+
+  return [res, updateStorage]
+}
+
+// const [count, setCount] = useStorage('count', 1)
+```
+
+使用方法:
+
+```tsx
+import {useStorage} from "@/hooks/useStorage";
+
+export default function Storage() {
+
+  const [value, setValue] = useStorage('count', 1)
+
+  return (
+    <div>
+      <button onClick={() => setValue(value - 1)}>-1</button>
+      <h1>{value}</h1>
+      <button onClick={() => setValue(value + 1)}>+1</button>
+    </div>
+  )
+}
+
+```
+
+实现订阅浏览器的 `History` API
+
+```ts
+// 监听 history 变化
+import {useSyncExternalStore} from "react";
+
+export const useHistory = () => {
+  const subscribe = (callback: () => void) => {
+    // 订阅浏览器 API
+    // popstate 只能监听浏览器前进后退按钮，无法监听 pushState、replaceState
+    window.addEventListener('popstate', callback)
+    return () => {
+      // 取消订阅
+      window.removeEventListener('popstate', callback)
+    }
+  }
+
+  const getSnapshot = () => {
+    return window.location.href
+  }
+
+  const getServerSnapshot = () => {
+    return ''
+  }
+
+  const url = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+
+  const push = (url: string) => {
+    window.history.pushState({}, '', url)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+
+  const replace = (url: string) => {
+    window.history.replaceState({}, '', url)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+
+  return [url, push, replace] as const
+}
+```
+
+使用方法:
+
+```tsx
+import {useHistory} from "@/hooks/useHistory";
+
+export default function History() {
+
+  const [url, push, replace] = useHistory()
+
+  return (
+    <div>
+      <h1>{url}</h1>
+      <button onClick={() => push('/cart')}>跳转到购物车</button>
+      <button onClick={() => replace('/cart')}>跳转到购物车2</button>
+    </div>
+  )
+}
+```
+
+### 12.2 `useTransition`
+
+`useTransition` 是 `React 18` 中引入的一个 `Hook`，用于管理 UI 中的过渡状态，特别是在处理长时间运行的状态更新时。它允许你将某些更新标记为“过渡”状态，这样 `React` 可以优先处理更重要的更新，比如用户输入，同时延迟处理过渡更新。
+
+#### 12.2.1 用法
+
+```ts
+const [isPending, startTransition] = useTransition();
+```
+
+返回值:
+
+`useTransition` 返回一个数组,包含两个元素
+
+1. isPending(boolean)，告诉你是否存在待处理的 transition。
+2. startTransition(function) 函数，你可以使用此方法将状态更新标记为 transition。
+
+#### 12.2.2 案例
+
+加载大量的数据，使用 `useTransition` 来优化性能。
+
+```tsx
+export default function Transition() {
+
+  const [isPending, startTransition] = useTransition()
+
+  const [keyword, setKeyword] = useState('')
+  const [list, setList] = useState<Item[]>([])
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setKeyword(e.target.value)
+
+    fetch('/api/list?keyword=' + e.target.value).then(res => res.json()).then(res => {
+      startTransition(() => {
+        setList(res.list)
+      })
+    })
+  }
+
+  return (
+    <div>
+      <input value={keyword} onChange={handleChange} />
+
+      {isPending && <div>loading...</div>}
+
+      <div>
+        {
+          list.map(item => (
+            <Fragment key={item.id}>
+              <div>
+                {item.name}
+              </div>
+              <p>{item.address}</p>
+            </Fragment>
+          ))
+        }
+      </div>
+    </div>
+  )
+}
+```
+
+### 12.3 `useDeferredValue`
+
+`useDeferredValue` 用于延迟某些状态的更新，直到主渲染任务完成。这对于高频更新的内容（如输入框、滚动等）非常有用，可以让 UI 更加流畅，避免由于频繁更新而导致的性能问题。
+
+#### 12.3.1 `useTransition` 和 `useDeferredValue` 的区别
+
+- `useTransition` 主要关注点是状态的过渡。它允许开发者控制某个更新的延迟更新，还提供了过渡标识，让开发者能够添加过渡反馈。
+- `useDeferredValue` 主要关注点是单个值的延迟更新。它允许你把特定状态的更新标记为低优先级。
+
+#### 12.3.2 用法
+
+```ts
+const deferredValue = useDeferredValue(value)
+```
+
+- `value`: 延迟更新的值(支持任意类型)
+- `deferredValue`: 延迟更新的值,在初始渲染期间，返回的延迟值将与您提供的值相同
+
+#### 12.3.3 案例
+
+输入框模拟搜索功能
+
+```tsx
+export default function DeferredValue() {
+  const [keyword, setKeyword] = useState('')
+  const [list] = useState<Item[]>(() => {
+    return mockjs.mock({
+      'list|10000': [{
+        id: '@id',
+        name: '@natural',
+        address: '@city'
+      }]
+    }).list
+  })
+
+  const deferredKeyword = useDeferredValue(keyword)
+
+  const findList = () => {
+    return list.filter(item => {
+      return item.name.toString().includes(deferredKeyword)
+    })
+  }
+
+  const isLoading = keyword !== deferredKeyword
+
+  return (
+    <div>
+      <input value={keyword} onChange={e => setKeyword(e.target.value)}/>
+
+      <div style={{opacity: isLoading ? 0.5 : 1, transition: 'opacity 0.5s'}}>
+        {
+          findList().map(item => (
+            <Fragment key={item.id}>
+              <div>
+                {item.name}
+              </div>
+              <p>{item.address}</p>
+            </Fragment>
+          ))
+        }
+      </div>
+    </div>
+  )
+}
+```
+
+### 12.4 `useLayoutEffect`
+
+1. `useLayoutEffect` 是一个类似于 `useEffect` 的钩子函数，它与 `useEffect` 的主要区别在于，`useLayoutEffect` 在浏览器更新DOM之前执行，而 `useEffect` 在浏览器更新DOM之后执行。
+
+2. `useLayoutEffect` 时同步执行，在浏览器更新DOM之前执行，而 `useEffect` 在浏览器更新DOM之后执行。
+
+#### 12.4.1 使用案例
+
+```tsx
+export default function App() {
+
+  // 这里 box1 将不会有过渡效果
+  useEffect(() => {
+    const div1 = document.querySelector('#box1')
+    div1.opcity = 1
+    // 添加过渡效果
+  }, [])
+  
+
+  // box2 将有过渡效果
+  useLayoutEffect(() => {
+    const div2 = document.querySelector('#box2')
+    div2.opcity = 1
+  }, [])
+
+  return (
+    <div>
+      <div style={{opcity: 0}} id="box1"></div>
+      <div style={{opcity: 0}} id="box2"></div>
+    </div>
+  )
+}
+```
+
+因为 `useLayoutEffect` 是同步执行的，所以 `div2` 的 `opcity` 属性会立即被设置为 `1`，而 `div1` 的 `opcity` 属性会在浏览器更新DOM之后才被设置为 `1`。
+
+### 13. `useRef`
+
+1. `useRef` 是一个 `Hook`，用于在组件中创建一个可变的引用对象，该对象在组件的整个生命周期中保持不变。
+可以用来保存值，经常用于计时器保存 `timerId`
+
+2. `useRef` 可以绑定一个 DOM 元素或一个组件的实例，用于操作 DOM
+
+#### 13.1 使用案例
+
+```tsx
+export default function App() {
+  count [count, setCount] = useState(0)
+  // 用于保存计时器 id，每次重新渲染不会重新赋值
+  const timerId = useRef<NodeJS.Timeout>(null)
+  // 用于操作 DOM 元素
+  const btn = useRef<HTMLButtonElement | null>(null)
+
+  const handleClick = () => {
+    // 获取到 DOM 元素的实例，通过 current 属性即可
+    console.log(btn.current)
+
+    // 操作 DOM
+    btn.current.style.background = 'red'
+  }
+
+  const start = () => {
+    // 保存计时器 id
+    timerId.current = setInterval(() => {
+      setCount(prev => prev + 1)
+    }, 1000)
+  }
+
+  const end = () => {
+    if (timerId.current) {
+      clearInterval(timerId.current)
+    }
+  }
+
+  return (
+    <div>
+      <button ref={{ btn }} onClick={handleClick}>
+        Test
+      </button>
+
+      <button onClick={start}>start</button>
+      {count}
+      <button onClick={end}>end</button>
+    </div>
+  )
+}
+```
+
+#### 13.2 使用 `useRef` 获取子组件的节点
+
+通过 `useRef` 获取子组件的节点，需要使用 `forwardRef` 来传递 `ref`。
+
+```tsx
+import React, { useRef } from "react"
+
+export default function RefComponent() {
+
+  // 通过 useRef 直接获取到子组件的节点
+  const childRef = useRef<HTMLHeadingElement | null>(null)
+
+  return (
+    <>
+      <button onClick={() => console.log(childRef.current)}>获取 Child</button>
+      <Child ref={childRef} />
+    </>
+  )
+}
+
+// 通过 forwardRef 传递 ref
+const Child = React.forwardRef<HTMLHeadingElement>((props, ref) => {
+  return (
+    <h1 ref={ref}>Hello World</h1>
+  )
+})
+```
+
+#### 13.3 使用 `useImperativeHandle` 暴露子组件的实例
+
+`useImperativeHandle` 是一个 `Hook`，用于在父组件中暴露子组件的实例。
+
+```tsx
+import React, { useImperativeHandle, useRef, useState } from "react"
+
+interface ChildRef {
+  count: number
+  addCount: () => void
+  minusCount: () => void
+}
+
+export default function RefComponent() {
+  // 通过 useRef 直接获取到子组件的节点
+  const childRef = useRef<ChildRef | null>(null)
+
+  return (
+    <>
+      <button onClick={() => console.log(childRef.current)}>获取 Child</button>
+      <button onClick={() => childRef.current?.addCount()}>增加</button>
+      <button onClick={() => childRef.current?.minusCount()}>减少</button>
+      <Child ref={childRef} />
+    </>
+  )
+}
+
+// 通过 forwardRef 传递 ref
+const Child = React.forwardRef<ChildRef>((props, ref) => { // [!code--]
+// React 19 之后 使用 ref 需要使用 {ref: React.Ref<ChildRef>} 来传递 ref
+const Child = ({ref}: {ref: React.Ref<ChildRef>}) => { // [!code++]
+  const [count, setCount] = useState(0)
+
+  // 通过 `useImperativeHandle` 将返回结果暴露给父组件
+  // 还有一个可选参数，依赖项参数，和 `useEffect` 的依赖项参数一样
+  useImperativeHandle(ref, () => {
+    return {
+      count,
+      addCount() {
+        setCount(count + 1)
+      },
+      minusCount() {
+        setCount(count - 1)
+      }
+    }
+  })
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>count+1</button>
+      <p>{count}</p>
+      <h1>Hello World</h1>
+    </>
+  )
+})
+```
+
+## 13. 自定义 Hook
+
+## 14. React 使用案例
+
+### 14.1 购物车案例
+
+使用 `Reducer` 实现购物车案例
+
+```tsx :collapsed-lines
+import { useEffect, useState, type ChangeEvent } from "react"
+import { useImmer, useImmerReducer } from "use-immer"
+import "./cart.css"
+
+type CartItem = {
+  id: number
+  name: string
+  price: number
+  count: number
+  isEdit: boolean
+}
+
+const cartList: CartItem[] = [
+  {
+    id: 0,
+    name: "小米15",
+    price: 9999,
+    count: 2,
+    isEdit: false,
+  },
+  {
+    id: 1,
+    name: "小米11",
+    price: 2999,
+    count: 4,
+    isEdit: false,
+  },
+  {
+    id: 2,
+    name: "小米13",
+    price: 4999,
+    count: 1,
+    isEdit: false,
+  },
+  {
+    id: 3,
+    name: "小米12",
+    price: 3999,
+    count: 1,
+    isEdit: false,
+  },
+  {
+    id: 4,
+    name: "小米12",
+    price: 3999,
+    count: 1,
+    isEdit: false,
+  },
+  {
+    id: 5,
+    name: "小米12",
+    price: 1999,
+    count: 8,
+    isEdit: false,
+  },
+]
+
+interface Action {
+  type:
+    | "add"
+    | "sub"
+    | "del"
+    | "plus"
+    | "minus"
+    | "change"
+    | "change-name"
+    | "edit"
+    | "search"
+  id?: number
+  payload?: CartItem[]
+  name?: string
+}
+
+/* const cartReducer = (state: CartItem[], { type, id }: Action) => {
+  switch (type) {
+    case "add":
+      return state.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            count: item.count + 1,
+          }
+        }
+        return item
+      })
+    case "sub":
+      return state.map((item) => {
+        if (item.id === id && item.count > 0) {
+          return {
+            ...item,
+            count: item.count - 1,
+          }
+        }
+        return item
+      })
+    case "del":
+      return state.filter((item) => item.id !== id)
+  }
+} */
+
+const cartReducer = (draft: CartItem[], action: Action) => {
+  let item: CartItem | undefined = undefined
+  if (action.id !== undefined) {
+    item = draft.find((item) => item.id === action.id)
+  }
+  // const item = draft.find((item) => item.id === action.id)
+  switch (action.type) {
+    case "plus":
+      item && item.count++
+      break
+    case "minus":
+      item && item.count--
+      break
+    case "del":
+      return draft.filter((item) => item.id !== action.id)
+    case "change":
+      draft.splice(0, draft.length, ...action.payload!)
+      break
+    case "change-name":
+      item && (item.name = action.name ?? "")
+      break
+    case "edit":
+      item && (item.isEdit = !item.isEdit)
+      break
+    case "search":
+      if (!action.name?.trim()) {
+        // draft.splice(0, draft.length, ...action.payload!)
+        return [...action.payload!]
+      }
+      return draft.filter((item) => item.name.includes(action.name!))
+  }
+}
+
+export default function Cart() {
+  const [keyword, setKeyword] = useState<string>("")
+  const [history, setHistory] = useImmer<CartItem[][]>([])
+  const [state, dispatch] = useImmerReducer(cartReducer, cartList)
+
+  useEffect(() => {
+    setHistory((draft) => {
+      draft.push(JSON.parse(JSON.stringify(state)))
+
+      if (draft.length > 10) {
+        draft.shift()
+      }
+    })
+  }, [state])
+
+  function backHistory(cartList: CartItem[], index: number) {
+    setHistory((draft) => {
+      draft.splice(index)
+      dispatch({ type: "change", payload: cartList })
+    })
+  }
+
+  function onSearchChange(e: ChangeEvent<HTMLInputElement>) {
+    setKeyword(e.target.value)
+    if (!e.target.value.trim()) {
+      const payload = JSON.parse(JSON.stringify(history[0]))
+      dispatch({ type: "change", payload })
+    }
+  }
+
+  return (
+    <div>
+      <div>
+        <input placeholder="请输入名称搜索" onChange={onSearchChange} />
+        <button
+          onClick={() =>
+            dispatch({ type: "search", name: keyword, payload: history[0] })
+          }
+        >
+          搜索
+        </button>
+      </div>
+      <div>
+        <p>历史记录:</p>
+        <ul>
+          {history.map((item, index) => {
+            return (
+              <li key={index}>
+                #{index}{" "}
+                <button onClick={() => backHistory(item, index)}>回退</button>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>名称</th>
+            <th>价格</th>
+            <th>数量</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {state.map((item, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>
+                {item.isEdit ? (
+                  <input
+                    value={item.name}
+                    onBlur={() => dispatch({ type: "edit", id: item.id })}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "change-name",
+                        id: item.id,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                ) : (
+                  item.name
+                )}
+              </td>
+              <td>{item.price}</td>
+              <td>
+                <button
+                  onClick={() => dispatch({ type: "minus", id: item.id })}
+                >
+                  -1
+                </button>
+                <span>{item.count}</span>
+                <button onClick={() => dispatch({ type: "plus", id: item.id })}>
+                  +1
+                </button>
+              </td>
+              <td>
+                <button onClick={() => dispatch({ type: "del", id: item.id })}>
+                  删除
+                </button>
+                <button onClick={() => dispatch({ type: "edit", id: item.id })}>
+                  修改
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={4}>合计</td>
+            <td>
+              {state.reduce((prev, next) => prev + next.price * next.count, 0)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  )
+}
+```
