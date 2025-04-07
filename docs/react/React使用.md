@@ -223,7 +223,7 @@ export default App
 
 如果结构复杂的，可以使用()进行包裹
 
-```
+```jsx
 {
   isPacked ? (<del>{name + " ✅"}</del>) : (name)
 }
@@ -1963,9 +1963,7 @@ useEffect(() => {
 
 但是，如果依赖数组为空，`Effect` 将不会在任何情况下运行。将产生以下错误：
 
-```
-React Hook useEffect has a missing dependency: 'isPlaying'. Either include it or remove the dependency array.
-```
+`React Hook useEffect has a missing dependency: 'isPlaying'. Either include it or remove the dependency array.`
 
 原因在于，你的 `Effect` 内部代码依赖于 `isPlaying prop` 来决定该做什么，但你并没有显式声明这个依赖关系。为了解决这个问题，**将 `isPlaying` 添加至依赖数组中**：
 
@@ -2499,14 +2497,14 @@ export default function App() {
 
 因为 `useLayoutEffect` 是同步执行的，所以 `div2` 的 `opcity` 属性会立即被设置为 `1`，而 `div1` 的 `opcity` 属性会在浏览器更新DOM之后才被设置为 `1`。
 
-### 13. `useRef`
+### 12.5 `useRef`
 
 1. `useRef` 是一个 `Hook`，用于在组件中创建一个可变的引用对象，该对象在组件的整个生命周期中保持不变。
 可以用来保存值，经常用于计时器保存 `timerId`
 
 2. `useRef` 可以绑定一个 DOM 元素或一个组件的实例，用于操作 DOM
 
-#### 13.1 使用案例
+#### 12.5.1 使用案例
 
 ```tsx
 export default function App() {
@@ -2551,7 +2549,7 @@ export default function App() {
 }
 ```
 
-#### 13.2 使用 `useRef` 获取子组件的节点
+#### 12.5.2 使用 `useRef` 获取子组件的节点
 
 通过 `useRef` 获取子组件的节点，需要使用 `forwardRef` 来传递 `ref`。
 
@@ -2579,7 +2577,7 @@ const Child = React.forwardRef<HTMLHeadingElement>((props, ref) => {
 })
 ```
 
-#### 13.3 使用 `useImperativeHandle` 暴露子组件的实例
+#### 12.5.3 使用 `useImperativeHandle` 暴露子组件的实例
 
 `useImperativeHandle` 是一个 `Hook`，用于在父组件中暴露子组件的实例。
 
@@ -2636,11 +2634,19 @@ const Child = ({ref}: {ref: React.Ref<ChildRef>}) => { // [!code++]
 })
 ```
 
-## 13. 自定义 Hook
+### 12.6 `useMemo`
 
-## 14. React 使用案例
+`useMemo` 是一个 `Hook`，用于在组件中缓存计算结果。详单与 Vue 中的计算属性，使用方法和 `useEffect` 类似。
 
-### 14.1 购物车案例
+### 12.7 `useCallback`
+
+`useCallback` 是一个 `Hook`，用于在组件中缓存函数。详单与 Vue 中的计算属性，使用方法和 `useEffect` 类似。
+
+## 13 自定义 Hook
+
+## 14 React 使用案例
+
+### 14.1.1 购物车案例
 
 使用 `Reducer` 实现购物车案例
 
@@ -2899,4 +2905,94 @@ export default function Cart() {
     </div>
   )
 }
+```
+
+### 14.1.2 搜索案例
+
+```tsx :collapsed-lines
+import React, {
+  memo,
+  Suspense,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
+
+interface News {
+  title: string
+  content: string
+}
+
+function App() {
+  const [keyword, setKeyword] = useState("")
+  const deferedKeyword = useDeferredValue(keyword)
+  const isLoading = keyword !== deferedKeyword
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value)
+  }
+
+  return (
+    <div>
+      <input type="text" value={keyword} onChange={handleInputChange} />
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <div
+          style={{ opacity: isLoading ? 0.5 : 1, transition: "opacity 0.5s" }}
+        >
+          <NewsList keyword={deferedKeyword} />
+        </div>
+      </Suspense>
+    </div>
+  )
+}
+
+const NewsList = memo(({ keyword }: { keyword: string }) => {
+  const [news, setNews] = useState<News[]>([])
+  const timerId = useRef<number | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    if (keyword === "") {
+      return
+    }
+    timerId.current = setTimeout(() => {
+      fetch("/api/list?keyword=" + keyword)
+        .then((res) => res.json())
+        .then((res) => {
+          startTransition(() => {
+            setNews(res.list)
+          })
+        })
+    }, 400)
+    return () => {
+      clearTimeout(timerId.current!)
+    }
+  }, [keyword])
+
+  if (keyword === "") {
+    return <div>请输入关键字搜索</div>
+  }
+
+  /* if (isPending) {
+    return <div>Loading....</div>
+  } */
+
+  return (
+    <div>
+      {news.map((item, index) => {
+        return (
+          <div style={{ padding: "10px", background: "pink" }} key={index}>
+            <h3>{item.title}</h3>
+            <p>{item.content}</p>
+          </div>
+        )
+      })}
+    </div>
+  )
+})
+
+export default App
 ```

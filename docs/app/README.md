@@ -7,7 +7,7 @@ config:
     full: true
     features:
       - title: 冬雨影视
-        details: 一个影视聚合网站
+        details: 一个影视聚合 App
         link: http://movies.jdynb.xyz
       - title: SplitLanzou
         details: 支持切片上传的蓝奏云

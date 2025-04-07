@@ -630,3 +630,213 @@ export default function Home() {
   )
 }
 ```
+
+## 使用数据模式
+
+推荐使用这种方式安装
+
+```shell
+npm i react-router
+```
+
+### 路由
+
+使用 `createBrowserRouter` 方法定义一个路由导航器，相当于 `Vue` 的 `createHistoryRouter`
+
+```tsx
+import { createBrowserRouter } from "react-router";
+
+function Root() {
+  return <h1>Hello world</h1>;
+}
+
+const router = createBrowserRouter([
+  { path: "/", Component: Root },
+  { path: '/about', element: <div>About</div>}
+]);
+
+```
+
+### 路由对象
+
+```tsx
+import {
+  createBrowserRouter,
+  useLoaderData,
+} from "react-router";
+
+createBrowserRouter([
+  {
+    path: "/teams/:teamId",
+    loader: async ({ params }) => {
+      let team = await fetchTeam(params.teamId);
+      return { name: team.name };
+    },
+    Component: Team,
+  },
+]);
+
+function Team() {
+  let data = useLoaderData();
+  return <h1>{data.name}</h1>;
+}
+
+```
+
+使用 `TypeScript` 规范类型
+
+```ts
+interface Data {
+  list: [
+    {
+      id: number,
+      content: string
+    }
+  ]
+}
+
+function Component() {
+  // 获取到加载的数据
+  const laoderData = useLoaderData<Data>()
+}
+```
+
+在数据还在加载时，展示加载效果
+
+```tsx
+function Loading() {
+  return <div>loading...</div>
+}
+
+
+{
+  path: "/",
+  // element: <div>Hello world!</div>,
+  Component: Root,
+  // 此处加载数据
+  loader: async ({params}) => {
+    // params 为路径上的参数
+    console.log(params)
+    const res = await fetch('/api/list?keyword=' + params.keyword).then(res => res.json())
+    return {
+      list: res.list
+    }
+  },
+  // 在 loader 中加载数据时，如果数据还没加载完成，将展示 HydrateFallback 中的内容
+  HydrateFallback: Loading,
+}
+```
+
+### 嵌套路由-数据模式
+
+一个路由可以有子路由，他们是父子的关系
+
+```tsx
+export const router = createBrowserRouter([
+  {
+    path: "/dashboard",
+    Component: Dashboard,
+    children: [
+      {
+        // index: true, 当访问 /dashboard 时，会渲染 Home 组件
+        index: true,
+        Component: () => {
+          return <div>Home</div>;
+        },
+      },
+      {
+        // /dashboard/setting
+        path: "setting",
+        Component: () => {
+          return <div>Setting</div>;
+        },
+      },
+    ],
+  },
+]);
+```
+
+在父路由中必须设置子路由要展示的位置
+
+```tsx
+function Dashboard() {
+  return (
+    <div>
+      Dashboard
+      <div>
+        {/* 必须设置 Outlet 才会展示子路由 */}
+        <Outlet />
+      </div>
+    </div>
+  )
+}
+```
+
+### 布局路由-数据默认
+
+布局路由和嵌套路由类型，但是布局路由不用设置 `path`, 路径也不会进行追加
+
+```tsx
+export const router = createBrowserRouter([
+  {
+    // 不设置 path, 为布局路由
+    // 直接访问根目录
+    Component: AppLayout,
+    children: [
+      {
+        index: true,
+        Component: () => <div>Child</div>
+      }
+    ]
+  }
+]);
+
+```
+
+### 前缀路由-数据模式
+
+和嵌套路由类型，但是他没有 `Component` 属性，同意多个路由的路由前缀
+
+```tsx
+createBrowserRouter([
+  {
+    // no component, just a path
+    path: "/projects",
+    children: [
+      { index: true, Component: ProjectsHome },
+      { path: ":pid", Component: Project },
+      { path: ":pid/edit", Component: EditProject },
+    ],
+  },
+]);
+```
+
+### 动态路由-数据模式
+
+通过 `path` 中定义动态的属性，可以传递给对应组件 `params` 参数
+
+```ts
+{
+  path: "teams/:teamId",
+  loader: async ({ params }) => {
+    // params are available in loaders/actions
+    // 获取到路由上动态参数
+    let team = await fetchTeam(params.teamId);
+    return { name: team.name };
+  },
+  Component: Team,
+}
+
+```
+
+```tsx
+import { useParams } from "react-router";
+
+function Team() {
+  // params are available in components through useParams
+  // 获取到路由对应的 params 参数
+  let params = useParams();
+  // ...
+}
+
+```
