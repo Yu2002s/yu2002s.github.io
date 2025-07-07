@@ -2,6 +2,7 @@
 title: TypeScript基础
 createTime: 2024/08/13 20:49:59
 permalink: /article/9ynys8xt/
+tags: [TypeScript]
 ---
 
 ### 接口
