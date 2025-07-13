@@ -11,6 +11,10 @@ config:
         icon: devicon:git
         details: Git使用帮助、Git常用指令
         link: /memo/git/
+      - title: NodeJs指令
+        icon: skill-icons:nodejs-light
+        details: NodeJs需要用到一些指令
+        link: /memo/nodejs/
       - title: Linux
         icon: logos:linux-tux
         details: Linux常用指令
