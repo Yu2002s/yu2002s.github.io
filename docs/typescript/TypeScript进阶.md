@@ -121,7 +121,7 @@ export class Lion extends Animal implements IFireShow {
     }
 }
 
-export class Tigger extends Animal implements IFireShow {
+export class Tiger extends Animal implements IFireShow {
     type: string = "老虎"
 
     singleFire() {
@@ -155,7 +155,7 @@ export interface IFireShow {
 
 const animals = [
     new Lion('辛巴', 12),
-    new Tigger('泰哥', 11)
+    new Tiger('泰哥', 11)
 ]
 
 // 使用方法判断某个动物是否有火圈表演的能力
@@ -827,7 +827,7 @@ type UserString = {
     [p in keyof User]: string
 }
 
-// readyonly
+// readyOnly
 type Readonly<T> = {
     readonly [p in keyof T]: User[T]
 }
@@ -856,6 +856,9 @@ NonNullable<T> // 从T中剔除null和undefined
 ReturnType<T> // 获取函数返回值类型
 
 InstanceType<T> // 获取函数类型的实例类型
+
+Omit<T, string> // 从某个类型中取出指定的属性
+
  ```
 
 - Exclude
@@ -1008,7 +1011,7 @@ declare namespace console {
 ```ts
 type TimeHandler = () => void
 
-declare function setTimeout(handler: TimeHandler, millseconds: number): number
+declare function setTimeout(handler: TimeHandler, millSeconds: number): number
 ```
 
 ### 模块声明
@@ -1081,3 +1084,23 @@ npm run build
     之后通过命令`npm install @types/你的库名`
 
 :::
+
+## tslint
+
+::: warn
+已废弃，迁移到eslint
+:::
+
+> 跟eslint相似，用于检查代码风格
+
+安装
+
+```shell
+npm i typescript tslint
+```
+
+初始化
+
+```shell
+npx tslint --init
+```

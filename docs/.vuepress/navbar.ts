@@ -19,6 +19,7 @@ export const navbar = defineNavbarConfig([
       { text: "备忘录", link: "/notes/memo/README.md" },
       { text: "前端笔记", link: "/notes/frontend/README.md" },
       { text: "后端笔记", link: "/notes/backend/README.md" },
+      { text: "Android笔记", link: "/android/compose/0ji6ncyv/" }
     ],
   },
   /* {
