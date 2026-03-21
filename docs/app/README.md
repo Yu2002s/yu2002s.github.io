@@ -17,5 +17,5 @@ config:
         link: https://github.com/Yu2002s/DongYuTvWeb
       - title: MusicKiller
         details: 一个简洁的音乐App
-        link: https://github.com/Yu2002s/music-killer
+        link: https://github.com/Yu2002s/MusicKiller
 ---
