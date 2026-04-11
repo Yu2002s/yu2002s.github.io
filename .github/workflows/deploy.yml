@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies and Build
         run: |
           npm install --legacy-peer-deps
-          npm run build
+          npm run docs:build
 
       # 4. 把打包好的静态文件通过 SSH 发送到 1Panel 服务器
       - name: Deploy to 1Panel Server
