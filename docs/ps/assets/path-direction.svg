@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360" role="img" aria-labelledby="title desc">
+  <title id="title">两条缝线的路径方向和等弧长标记</title>
+  <desc id="desc">衣身袖窿和袖山都从左端点画到右端点，五个编号点按曲线长度对应。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#43d5d1" />
+    </marker>
+  </defs>
+  <rect width="1000" height="360" fill="#252525" />
+  <text x="48" y="48" fill="#f1f1f1" font-family="Arial, Microsoft YaHei, sans-serif" font-size="22" font-weight="700">方向一致时，1 对 1、2 对 2……</text>
+  <text x="48" y="78" fill="#b8b8b8" font-family="Arial, Microsoft YaHei, sans-serif" font-size="15">两条开放路径的起点和终点要代表同一侧的缝合端点</text>
+
+  <text x="48" y="132" fill="#b8b8b8" font-family="Arial, Microsoft YaHei, sans-serif" font-size="16">衣身袖窿</text>
+  <path d="M150 205 C220 108 335 102 430 177 C488 222 560 223 625 150" fill="none" stroke="#f0ca69" stroke-width="5" />
+  <path d="M178 197 C280 105 382 116 470 181" fill="none" stroke="#43d5d1" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrow)" />
+
+  <text x="48" y="276" fill="#b8b8b8" font-family="Arial, Microsoft YaHei, sans-serif" font-size="16">袖山曲线</text>
+  <path d="M150 300 C233 230 328 210 416 239 C492 264 558 250 625 195" fill="none" stroke="#f0ca69" stroke-width="5" />
+  <path d="M178 292 C280 224 380 222 475 244" fill="none" stroke="#43d5d1" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrow)" />
+
+  <g fill="#252525" stroke="#43d5d1" stroke-width="3">
+    <circle cx="150" cy="205" r="10" /><circle cx="270" cy="130" r="10" /><circle cx="390" cy="157" r="10" /><circle cx="510" cy="208" r="10" /><circle cx="625" cy="150" r="10" />
+    <circle cx="150" cy="300" r="10" /><circle cx="270" cy="221" r="10" /><circle cx="390" cy="235" r="10" /><circle cx="510" cy="256" r="10" /><circle cx="625" cy="195" r="10" />
+  </g>
+  <g fill="#f1f1f1" font-family="Arial, Microsoft YaHei, sans-serif" font-size="13" text-anchor="middle" dominant-baseline="central">
+    <text x="150" y="205">1</text><text x="270" y="130">2</text><text x="390" y="157">3</text><text x="510" y="208">4</text><text x="625" y="150">5</text>
+    <text x="150" y="300">1</text><text x="270" y="221">2</text><text x="390" y="235">3</text><text x="510" y="256">4</text><text x="625" y="195">5</text>
+  </g>
+  <text x="690" y="172" fill="#43d5d1" font-family="Arial, Microsoft YaHei, sans-serif" font-size="16">起点到终点方向一致</text>
+  <text x="690" y="200" fill="#b8b8b8" font-family="Arial, Microsoft YaHei, sans-serif" font-size="14">方向相反时，在面板中勾选“反转”</text>
+</svg>
