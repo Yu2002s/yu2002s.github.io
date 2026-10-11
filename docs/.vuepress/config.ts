@@ -27,7 +27,7 @@ export default defineUserConfig({
     hostname: "https://www.jdynb.xyz",
 
     footer: {
-      copyright: 'ICP备案号: 浙ICP备2026014986号'
+      copyright: '<a href="https://beian.miit.gov.cn/">ICP备案号: 浙ICP备2026014986号</a>'
     },
 
     plugins: {
