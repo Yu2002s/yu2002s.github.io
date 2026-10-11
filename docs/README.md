@@ -7,7 +7,7 @@ description: 冬日暖雨的个人主页,记录学习到的技术。包含博客
 externalLinkIcon: true
 config:
   - type: hero
-    full: true
+    full: full
     background: tint-plate
     hero:
       name: 冬日暖雨的主页
@@ -22,7 +22,7 @@ config:
           link: /app/
         - theme: alt
           text: Github →
-          link: https://github.com/yu2002s
+          link: https://github.com/yu2002s     
   # - type: banner
   # - type: blog
   # - type: text-image
@@ -42,11 +42,3 @@ config:
   #       description: 支持投屏、下载、弹幕等基础功能，你想要的这里都有。
   # - type: custom
 ---
-
-## 开源的项目
-
-<CardGrid>
-  <RepoCard repo="yu2002s/SplitLanzou" />
-  <RepoCard repo="yu2002s/Movies-app" />
-  <RepoCard repo="yu2002s/movies-admin" />
-</CardGrid>

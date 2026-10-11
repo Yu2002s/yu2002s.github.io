@@ -26,6 +26,10 @@ export default defineUserConfig({
     // 添加您的部署域名
     hostname: "https://www.jdynb.xyz",
 
+    footer: {
+      copyright: 'ICP备案号: 浙ICP备2026014986号'
+    },
+
     plugins: {
       /**
        * Shiki 代码高亮
